@@ -25,6 +25,7 @@ from .agenda_history import AgendaHistoryResource, AgendaHistoryService
 from .agenda_spike import AgendaSpikeResource, AgendaUnspikeResource, AgendaSpikeService, AgendaUnspikeService
 from .planning_lock import PlanningLockResource, PlanningLockService, PlanningUnlockResource, PlanningUnlockService
 from .events_lock import EventsLockResource, EventsLockService, EventsUnlockResource, EventsUnlockService
+from .agendas import AgendasResource, AgendasService
 from superdesk.io.registry import register_feeding_service, register_feed_parser
 from .feed_parsers.ics_2_0 import IcsTwoFeedParser
 from .feed_parsers.ntb_event_xml import NTBEventXMLFeedParser
@@ -67,6 +68,9 @@ def init_app(app):
 
     agenda_unspike_service = AgendaUnspikeService('agenda_unspike', backend=superdesk.get_backend())
     AgendaUnspikeResource('agenda_unspike', app=app, service=agenda_unspike_service)
+
+    agendas_service = AgendasService('agendas', backend=superdesk.get_backend())
+    AgendasResource('agendas', app=app, service=agendas_service)
 
     coverage_search_service = CoverageService('coverage', backend=superdesk.get_backend())
     CoverageResource('coverage', app=app, service=coverage_search_service)
