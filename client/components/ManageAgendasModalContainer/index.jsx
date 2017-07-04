@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, AgendaItem } from '../../components'
+    import { Modal, AgendaItem } from '../../components'
 import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import * as selectors from '../../selectors'

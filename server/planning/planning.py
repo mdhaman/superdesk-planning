@@ -179,7 +179,7 @@ planning_schema = {
 
     'agendas': {
         'type': 'list',
-        'schema': superdesk.Resource.rel('agnedas'),
+        'schema': superdesk.Resource.rel('agenda'),
         'mapping': not_analyzed
     },
 

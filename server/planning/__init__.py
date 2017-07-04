@@ -60,17 +60,17 @@ def init_app(app):
     planning_unspike_service = PlanningUnspikeService('planning_unspike', backend=superdesk.get_backend())
     PlanningUnspikeResource('planning_unspike', app=app, service=planning_unspike_service)
 
-    agenda_search_service = AgendaService('agenda', backend=superdesk.get_backend())
-    AgendaResource('agenda', app=app, service=agenda_search_service)
+    # agenda_search_service = AgendaService('agenda', backend=superdesk.get_backend())
+    # AgendaResource('agenda', app=app, service=agenda_search_service)
+    #
+    # agenda_spike_service = AgendaSpikeService('agenda_spike', backend=superdesk.get_backend())
+    # AgendaSpikeResource('agenda_spike', app=app, service=agenda_spike_service)
+    #
+    # agenda_unspike_service = AgendaUnspikeService('agenda_unspike', backend=superdesk.get_backend())
+    # AgendaUnspikeResource('agenda_unspike', app=app, service=agenda_unspike_service)
 
-    agenda_spike_service = AgendaSpikeService('agenda_spike', backend=superdesk.get_backend())
-    AgendaSpikeResource('agenda_spike', app=app, service=agenda_spike_service)
-
-    agenda_unspike_service = AgendaUnspikeService('agenda_unspike', backend=superdesk.get_backend())
-    AgendaUnspikeResource('agenda_unspike', app=app, service=agenda_unspike_service)
-
-    agendas_service = AgendasService('agendas', backend=superdesk.get_backend())
-    AgendasResource('agendas', app=app, service=agendas_service)
+    agendas_service = AgendasService('agenda', backend=superdesk.get_backend())
+    AgendasResource('agenda', app=app, service=agendas_service)
 
     coverage_search_service = CoverageService('coverage', backend=superdesk.get_backend())
     CoverageResource('coverage', app=app, service=coverage_search_service)

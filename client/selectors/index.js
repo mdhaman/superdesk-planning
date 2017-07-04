@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { orderBy, get, sortBy } from 'lodash'
+import { orderBy, get, sortBy, keys, includes } from 'lodash'
 // import { isAllDay } from '../utils'
 import moment from 'moment'
 import { ITEM_STATE } from '../constants'
@@ -98,7 +98,8 @@ export const getFilteredPlanningList = createSelector(
                 ))
         }
 
-        const plannings = planningsInList
+        const currentAgendaId = currentAgenda ? currentAgenda._id : null
+        const plannings = planningsInList.filter((planning) => includes(planning.agendas, currentAgendaId))
         // remove undefined
         .filter((p) => p !== undefined)
         // if "only future" filter is enabled, keep only future planning
@@ -284,6 +285,23 @@ export const getActiveAgendas = createSelector(
     [getAgendas],
     (agendas) => (
         agendas.filter((a) => a.state !== ITEM_STATE.SPIKED)
+    )
+)
+
+
+/** Returns the list of Agendas that are `enabled` */
+export const getEnabledAgendas = createSelector(
+    [getAgendas],
+    (agendas) => (
+        agendas.filter((a) => a.is_enabled === true)
+    )
+)
+
+/** Returns the list of Agendas that are not `disabled` */
+export const getDisabledAgendas = createSelector(
+    [getAgendas],
+    (agendas) => (
+        agendas.filter((a) => a.state === false)
     )
 )
 
