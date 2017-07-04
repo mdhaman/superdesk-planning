@@ -98,7 +98,7 @@ class PlanningPanel extends React.Component {
                                         <p className="panel-info__description">...from the drop-down list above.</p>
                                     </div>
                                 </div>
-                            || (planningList && planningList.length < 1) &&
+                            || (planningList && planningList.length < 1 && currentAgenda) &&
                                 <div className="Planning-panel__empty-message">
                                     <div className="panel-info">
                                         <div className="panel-info__icon">
