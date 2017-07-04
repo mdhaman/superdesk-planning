@@ -111,6 +111,12 @@ class PlanningService(superdesk.Service):
             return False, 'User does not have sufficient permissions.'
         return True, ''
 
+    def on_fetched(self, doc):
+        pass
+
+    def on_fetched_item(self, doc):
+        pass
+
 
 event_type = deepcopy(superdesk.Resource.rel('events', type='string'))
 event_type['mapping'] = not_analyzed

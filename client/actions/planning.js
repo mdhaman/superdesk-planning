@@ -1,6 +1,6 @@
 import * as selectors from '../selectors'
 import * as actions from '../actions'
-import { pickBy, cloneDeep, isNil, has, get, isEqual } from 'lodash'
+import { pickBy, cloneDeep, isNil, has, get, isEqual, map } from 'lodash'
 import { addToCurrentAgenda, selectAgenda,
     fetchSelectedAgendaPlannings } from './agenda'
 import { PRIVILEGES, PLANNING, ITEM_STATE } from '../constants'
@@ -121,6 +121,9 @@ const _savePlanning = (planning) => (
         // remove nested original creator
         delete planning.original_creator
         // save through the api
+
+        planning.agendas = (planning.agendas || []).map((a) => a._id || a)
+
         return api('planning').save(cloneDeep(originalPlanning), planning)
         .then((planning) => (
             // save/delete coverages
@@ -244,9 +247,15 @@ const fetchPlannings = (params={}) => (
         dispatch({ type: PLANNING.ACTIONS.REQUEST_PLANNINGS })
         // fetch the plannings through the api
         let q = {}
+
         if (params.agendas) {
             q = { source: { query: { bool: {} } } }
-            q.source.query.bool.should = {terms: {agendas: params.agendas}}
+            q.source.query.bool.must = {terms: {agendas: params.agendas}}
+        }
+
+        if (params.no_agenda) {
+            q = { source: { query: { bool: {} } } }
+            q.source.query.bool.must_not = {exists: {field: 'agendas'}}
         }
         // fetch the plannings
         return dispatch(performFetchRequest(q))
@@ -377,9 +386,11 @@ const _openPlanningEditor = (planning) => (
  */
 const previewPlanningAndOpenAgenda = (planning) => (
     (dispatch, getState) => {
+        const planningItem = get(selectors.getStoredPlannings(getState()), planning)
         const agenda = selectors.getAgendas(getState()).find(
-            (a) => (a.planning_items || []).indexOf(planning) > -1
+            (a) => (planningItem.agendas || []).indexOf(a._id) > -1
         )
+        console.log(agenda)
         if (agenda && agenda._id !== selectors.getCurrentAgendaId(getState())) {
             dispatch(selectAgenda(agenda._id))
         }

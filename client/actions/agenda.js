@@ -28,7 +28,6 @@ const _createOrUpdateAgenda = ({ _id, name, is_enabled }) => (
             notify.success('The agenda has been created/updated.')
             dispatch(hideModal())
             dispatch(addOrReplaceAgenda(agenda))
-            // dispatch(selectAgenda(agenda._id))
         }, (error) => {
             let errorMessage = getErrorMessage(
                 error,
@@ -129,7 +128,7 @@ const fetchAgendaById = (_id) => (
 
 /**
  * Action dispatcher that adds the supplied planning item to the agenda
- * @param {object} planning - The planning item to add to the agenda
+ * @param {array} plannings - The planning item to add to the agenda
  * @param {object} agenda - The agenda to add the planning to
  * @return Promise
  */
@@ -159,7 +158,7 @@ const _addPlanningsToAgenda = ({ plannings, agenda }) => (
 /**
  * Action dispatcher that adds the supplied planning item to the
  * currently selected agenda
- * @param {object} planning - The planning item to add to the agenda
+ * @param {array} plannings - The planning item to add to the agenda
  * @return Promise
  */
 const _addToCurrentAgenda = (plannings) => (
@@ -185,7 +184,7 @@ const _addToCurrentAgenda = (plannings) => (
 /**
  * Action dispatcher that creates a planning item from the supplied event,
  * then adds this to the currently selected agenda
- * @param {object} event - The event used to create the planning item
+ * @param {array} events - The event used to create the planning item
  * @return Promise
  */
 const _addEventToCurrentAgenda = (events) => (
@@ -260,54 +259,6 @@ const _createPlanningFromEvent = (event) => (
 )
 
 /**
- * Action dispatcher that marks an Agenda as spiked
- * @param {object} agenda - The agenda to spike
- * @return arrow function
- */
-const _spikeAgenda = (agenda) => (
-    (dispatch, getState, { api, notify }) => (
-        api.update('agenda_spike', agenda, {})
-        .then(() => {
-            notify.success('The Agenda has been spiked.')
-            dispatch({
-                type: AGENDA.ACTIONS.SPIKE_AGENDA,
-                payload: agenda,
-            })
-            dispatch(fetchAgendas())
-        }, (error) => {
-            notify.error(getErrorMessage(
-                error,
-                'There was a problem, Agenda not spiked.'
-            ))
-        })
-    )
-)
-
-/**
- * Action dispatcher that marks an Agenda as active
- * @param {object} agenda - The agenda to unspike
- * @return thunk function
- */
-const _unspikeAgenda = (agenda) => (
-    (dispatch, getState, { api, notify }) => (
-        api.update('agenda_unspike', agenda, {})
-        .then(() => {
-            notify.success('The Agenda has been unspiked.')
-            dispatch({
-                type: AGENDA.ACTIONS.UNSPIKE_AGENDA,
-                payload: agenda,
-            })
-            dispatch(fetchAgendas())
-        }, (error) => {
-            notify.error(getErrorMessage(
-                error,
-                'There was a problem, Agenda was not unspiked.'
-            ))
-        })
-    )
-)
-
-/**
  * Action dispatcher that fetches all planning items for the
  * currently selected agenda
  * @return arrow function
@@ -315,7 +266,12 @@ const _unspikeAgenda = (agenda) => (
 const fetchSelectedAgendaPlannings = () => (
     (dispatch, getState) => {
         const agenda = selectors.getCurrentAgenda(getState())
-        return dispatch(planning.api.fetch({ ids: agenda.planning_items }))
+        // TODO: use plannings API
+        if (agenda) {
+            return dispatch(fetchPlannings({ agendas: [agenda._id] }))
+        } else {
+            return dispatch(fetchPlannings({ no_agenda: true}))
+        }
     }
 )
 
@@ -342,6 +298,7 @@ const addEventToCurrentAgenda = checkPermission(
     PRIVILEGES.PLANNING_MANAGEMENT,
     'Unauthorised to create a new planning item!'
 )
+
 
 const createPlanningFromEvent = checkPermission(
     _createPlanningFromEvent,
@@ -371,20 +328,6 @@ const addToCurrentAgenda = checkPermission(
     'Unauthorised to add a Planning Item to an Agenda'
 )
 
-/** Set permission for spiking agenda */
-const spikeAgenda = checkPermission(
-    _spikeAgenda,
-    PRIVILEGES.SPIKE_AGENDA,
-    'Unauthorised to spike an Agenda.'
-)
-
-/** Set permission for unspiking agenda */
-const unspikeAgenda = checkPermission(
-    _unspikeAgenda,
-    PRIVILEGES.UNSPIKE_AGENDA,
-    'Unauthorised to unspike an Agenda.'
-)
-
 // WebSocket Notifications
 /**
  * Action Event when a new Agenda is created or updated
@@ -404,14 +347,10 @@ const onAgendaCreatedOrUpdated = (_e, data) => (
 const agendaNotifications = {
     'agenda:created': () => (onAgendaCreatedOrUpdated),
     'agenda:updated': () => (onAgendaCreatedOrUpdated),
-    'agenda:spiked': () => (onAgendaCreatedOrUpdated),
-    'agenda:unspiked': () => (onAgendaCreatedOrUpdated),
 }
 
 export {
     createOrUpdateAgenda,
-    spikeAgenda,
-    unspikeAgenda,
     fetchAgendas,
     fetchAgendaById,
     selectAgenda,

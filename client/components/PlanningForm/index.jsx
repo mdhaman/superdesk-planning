@@ -62,7 +62,9 @@ const PlanningReduxForm = reduxForm({
     enableReinitialize: true, //the form will reinitialize every time the initialValues prop changes
 })(Component)
 
-const mapStateToProps = (state) => ({ initialValues: selectors.getCurrentPlanning(state) })
+const mapStateToProps = (state) => ({
+    initialValues: selectors.getCurrentPlanning(state)
+})
 
 const mapDispatchToProps = (dispatch) => ({
     /** `handleSubmit` will call `onSubmit` after validation */

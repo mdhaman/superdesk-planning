@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { orderBy, get, sortBy, keys, includes } from 'lodash'
+import { orderBy, get, sortBy, keys, includes, isEmpty } from 'lodash'
 // import { isAllDay } from '../utils'
 import moment from 'moment'
 import { ITEM_STATE } from '../constants'
@@ -100,6 +100,15 @@ export const getFilteredPlanningList = createSelector(
 
         const currentAgendaId = currentAgenda ? currentAgenda._id : null
         const plannings = planningsInList.filter((planning) => includes(planning.agendas, currentAgendaId))
+        let plannings = []
+
+        if (currentAgendaId) {
+            plannings = planningsInList.filter((planning) => includes(planning.agendas, currentAgendaId))
+        } else {
+            plannings = planningsInList.filter((planning) => !planning.agendas || isEmpty(planning.agendas))
+        }
+
+        plannings = plannings
         // remove undefined
         .filter((p) => p !== undefined)
         // if "only future" filter is enabled, keep only future planning
@@ -131,10 +140,13 @@ export const getFilteredPlanningListEvents = createSelector(
 )
 
 export const getCurrentPlanning = createSelector(
-    [getCurrentPlanningId, getStoredPlannings],
-    (currentPlanningId, storedPlannings) => {
+    [getCurrentPlanningId, getStoredPlannings, getAgendas],
+    (currentPlanningId, storedPlannings, agendas) => {
         if (currentPlanningId) {
-            return storedPlannings[currentPlanningId]
+            const planning = storedPlannings[currentPlanningId]
+            // const planningAgendas = agendas.filter((a) => includes(planning.agendas || [], a._id))
+            // planning.agendas = planningAgendas
+            return planning
         }
     }
 )
@@ -279,6 +291,13 @@ export const getActiveAgendas = createSelector(
     )
 )
 
+/** Returns the list of Agendas that are assigned to planning items */
+export const getPlanningItemAgendas = createSelector(
+    [getAgendas, getCurrentPlanning],
+    (agendas, planning) => (
+       agendas.filter((a) => includes(planning.agendas || [], a._id))
+    )
+)
 
 /** Returns the list of Agendas that are `enabled` */
 export const getEnabledAgendas = createSelector(
@@ -292,7 +311,7 @@ export const getEnabledAgendas = createSelector(
 export const getDisabledAgendas = createSelector(
     [getAgendas],
     (agendas) => (
-        agendas.filter((a) => a.state === false)
+        agendas.filter((a) => a.is_enabled === false)
     )
 )
 
