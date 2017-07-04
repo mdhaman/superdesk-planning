@@ -16,7 +16,11 @@ class AgendasResource(Resource):
         },
         # Audit Information
         'original_creator': Resource.rel('users'),
-        'version_creator': Resource.rel('users')
+        'version_creator': Resource.rel('users'),
+        'is_enabled': {
+            'type': 'boolean',
+            'default': True
+        },
     }
 
     resource_methods = ['GET', 'POST']
@@ -43,10 +47,11 @@ class AgendasService(Service):
             )
 
     def on_update(self, updates, original):
-        updates['version_creator'] = get_user_id()
+        user_id = get_user_id()
+        if user_id:
+            updates['version_creator'] = get_user_id()
 
     def on_updated(self, updates, original):
-        # todo: update all planning items
         push_notification(
             'agenda:updated',
             item=str(original[config.ID_FIELD]),

@@ -30,7 +30,6 @@ class PlanningPanel extends React.Component {
             editPlanningViewOpen,
             isEventListShown,
             toggleEventsList,
-            onManageAgendasClick,
             onlyFuture,
             onlySpiked,
             onFutureToggleChange,
@@ -54,11 +53,6 @@ class PlanningPanel extends React.Component {
                             <button onClick={toggleEventsList} type="button" className="backlink backlink--rotated" />
                         </div>
                     }
-                    <div className="navbtn" title="Manage agendas">
-                        <button onClick={onManageAgendasClick} type="button">
-                            <i className="icon-th-large"/>
-                        </button>
-                    </div>
                     <h3 className="subnav__page-title">
                         <span>
                             <span>Agenda</span>
@@ -121,7 +115,6 @@ PlanningPanel.propTypes = {
     addEventToCurrentAgenda: React.PropTypes.func,
     toggleEventsList: React.PropTypes.func,
     isEventListShown: React.PropTypes.bool,
-    onManageAgendasClick: React.PropTypes.func,
     onlyFuture: React.PropTypes.bool,
     onlySpiked: React.PropTypes.bool,
     onFutureToggleChange: React.PropTypes.func,
@@ -152,7 +145,6 @@ const mapDispatchToProps = (dispatch) => ({
     handleSearch: (text) => (dispatch(actions.planning.ui.filterByKeyword(text))),
     addEventToCurrentAgenda: (event) => (dispatch(actions.addEventToCurrentAgenda(event))),
     toggleEventsList: () => (dispatch(actions.planning.ui.toggleEventsList())),
-    onManageAgendasClick: () => (dispatch(actions.showModal({ modalType: 'MANAGE_AGENDAS' }))),
     onFutureToggleChange: () => (dispatch(actions.planning.ui.toggleOnlyFutureFilter())),
     onSpikedToggleChange: () => (dispatch(actions.planning.ui.toggleOnlySpikedFilter())),
 })

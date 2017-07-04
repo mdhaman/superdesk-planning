@@ -13,7 +13,7 @@ import { planning } from './index'
  * @param {string} name - The name of the Agenda to create
  * @return Promise
  */
-const _createOrUpdateAgenda = ({ _id, name }) => (
+const _createOrUpdateAgenda = ({ _id, name, is_enabled }) => (
     (dispatch, getState, { api, notify }) => {
         let originalAgenda = {}
         const agendas = selectors.getAgendas(getState())
@@ -23,12 +23,12 @@ const _createOrUpdateAgenda = ({ _id, name }) => (
             originalAgenda = cloneDeep(originalAgenda || {})
         }
 
-        return api('agenda').save(originalAgenda, { name })
+        return api('agenda').save(originalAgenda, { name, is_enabled })
         .then((agenda) => {
             notify.success('The agenda has been created/updated.')
             dispatch(hideModal())
             dispatch(addOrReplaceAgenda(agenda))
-            dispatch(selectAgenda(agenda._id))
+            // dispatch(selectAgenda(agenda._id))
         }, (error) => {
             let errorMessage = getErrorMessage(
                 error,
@@ -97,9 +97,7 @@ const fetchAgendas = (query={}) => (
         return api('agenda').query({
             source: query.source,
             where: query.where,
-            embedded: { original_creator: 1 }, // nest creator to planning
-            max_results: 10000,
-            timestamp: new Date(),
+            max_results: 200,
         })
         .then((data) => {
             dispatch(receiveAgendas(data._items))
@@ -221,7 +219,6 @@ const _addEventToCurrentAgenda = (events) => (
             notify.pop()
             notify.success(`created ${events.length} plannings !`)
         })
-        .then(() => (dispatch(addToCurrentAgenda(plannings))))
         .then(() => dispatch(fetchSelectedAgendaPlannings()))
     }
 )
@@ -257,6 +254,7 @@ const _createPlanningFromEvent = (event) => (
             headline: event.name,
             subject: event.subject,
             anpa_category: event.anpa_category,
+            agendas: [currentAgenda._id]
         }))
     }
 )
@@ -317,7 +315,6 @@ const _unspikeAgenda = (agenda) => (
 const fetchSelectedAgendaPlannings = () => (
     (dispatch, getState) => {
         const agenda = selectors.getCurrentAgenda(getState())
-        if (!agenda || !agenda.planning_items) return Promise.resolve()
         return dispatch(planning.api.fetch({ ids: agenda.planning_items }))
     }
 )

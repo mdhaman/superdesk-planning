@@ -2,6 +2,7 @@ import React from 'react'
 import { Modal } from '../index'
 import { Button } from 'react-bootstrap'
 import './style.scss'
+import { isBoolean } from 'lodash'
 
 export class ModalWithForm extends React.Component {
     constructor(props) {
@@ -18,7 +19,9 @@ export class ModalWithForm extends React.Component {
             ref: 'form',
         })
         return (
-            <Modal show={this.props.show} onHide={this.props.onHide}>
+            <Modal show={this.props.show}
+                   onHide={this.props.onHide}
+                   large={isBoolean(this.props.large) ? this.props.large : false}>
                 <Modal.Header>
                     <a className="close" onClick={this.props.onHide}>
                         <i className="icon-close-small" />
@@ -49,4 +52,9 @@ ModalWithForm.propTypes = {
     onHide: React.PropTypes.func,
     pristine: React.PropTypes.bool,
     submitting: React.PropTypes.func,
+    large: React.PropTypes.bool,
+    fill: React.PropTypes.bool,
+    fullscreen: React.PropTypes.bool,
+    white: React.PropTypes.bool,
+    className: React.PropTypes.string,
 }
