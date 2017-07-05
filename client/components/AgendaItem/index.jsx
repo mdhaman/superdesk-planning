@@ -7,10 +7,9 @@ export const AgendaItem = ({ agenda, onClick, editEvent, privileges }) => {
     return (
         <div className="sd-list-item sd-list-item--width50 sd-shadow--z1">
             <div className="sd-list-item__column sd-list-item__column--grow sd-list-item__column--no-border"
-                 onClick={onClick.bind(this, agenda)}>
+                 onClick={privileges.planning_agenda_management === 1 && onClick.bind(this, agenda)}>
                 <div className="sd-list-item__row">
                     <span className="sd-overflow-ellipsis">{agenda.name}</span>
-                    {!agenda.is_enabled && <span className="label label--hollow">Disabled</span>}
                     <time>updated {moment(agenda._updated).fromNow()}</time>
                 </div>
             </div>
