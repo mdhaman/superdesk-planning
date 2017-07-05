@@ -1,20 +1,18 @@
 import React from 'react'
-import {Tabs, Tab, TabContent, ModalsContainer, AgendasListContainer} from '../../components'
+import { Tabs, Tab, TabContent, ModalsContainer, AgendasListContainer } from '../../components'
 
 export class PlanningSettingsContainer extends React.Component {
     constructor(props) {
         super(props)
         this.tabs = {
             AGENDA: 'Agenda',
-            OTHER: 'Other'
+            OTHER: 'Other',
         }
-        this.state = {
-            activeTab: this.tabs.AGENDA
-        }
+        this.state = { activeTab: this.tabs.AGENDA }
     }
 
     onChangeTab(tabName) {
-        this.setState({activeTab: tabName})
+        this.setState({ activeTab: tabName })
     }
 
     render() {

@@ -25,7 +25,7 @@ export function PlanningSettingsController(
     notify,
     privileges,
     userList,
-    session,
+    session
 ) {
     // create the application store
     const store = createStore({
@@ -55,6 +55,5 @@ export function PlanningSettingsController(
     ReactDOM.render(
         <Provider store={store}>
             <PlanningSettingsApp/>
-        </Provider>
-    ,$element.get(0))
+        </Provider>, $element.get(0))
 }

@@ -2,6 +2,7 @@ import React from 'react'
 import { fields, Toggle, AuditInformation } from '../components'
 import { connect } from 'react-redux'
 import { Field, reduxForm } from 'redux-form'
+import PropTypes from 'prop-types'
 import { get } from 'lodash'
 import * as actions from '../actions'
 import { ChainValidators, RequiredFieldsValidatorFactory, MaxLengthValidatorFactory } from '../validators'
@@ -10,14 +11,12 @@ export class Component extends React.Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            is_enabled: this.props.initialValues.is_enabled
-        }
+        this.state = { isEnabled: this.props.initialValues.is_enabled }
     }
 
     handleEnabledChange(event) {
         this.props.change('is_enabled', event.target.value)
-        this.setState({is_enabled: event.target.value})
+        this.setState({ isEnabled: event.target.value })
     }
 
     render() {
@@ -35,7 +34,7 @@ export class Component extends React.Component {
                        type="text"
                        label="Name"/>
                 <div className="field">
-                    <Toggle value={this.state.is_enabled}
+                    <Toggle value={this.state.isEnabled}
                             onChange={this.handleEnabledChange.bind(this)}
                             /> Enabled
                 </div>
@@ -46,7 +45,9 @@ export class Component extends React.Component {
 }
 
 Component.propTypes = {
-    handleSubmit: React.PropTypes.func.isRequired
+    handleSubmit: PropTypes.func.isRequired,
+    initialValues: PropTypes.object.isRequired,
+    change: PropTypes.func,
 }
 
 // Decorate the form component
@@ -62,13 +63,9 @@ export const CreateEditAgenda = reduxForm({
 
 const mapDispatchToProps = (dispatch) => ({
     /** `handleSubmit` will call `onSubmit` after validation */
-    onSubmit: ({ _id, name, is_enabled }) => (
+    onSubmit: (agenda) => (
         // save the agenda through the API
-        dispatch(actions.createOrUpdateAgenda({
-            _id,
-            name,
-            is_enabled
-        }))
+        dispatch(actions.createOrUpdateAgenda(agenda))
     ),
 })
 

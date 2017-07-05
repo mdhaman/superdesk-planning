@@ -1,10 +1,10 @@
 import { hideModal } from './modal'
 import * as selectors from '../selectors'
 import { SubmissionError } from 'redux-form'
-import { cloneDeep, get } from 'lodash'
+import { cloneDeep, get, pick } from 'lodash'
+import { fetchPlannings, savePlanning } from './planning'
 import { PRIVILEGES, ITEM_STATE, AGENDA } from '../constants'
 import { checkPermission, getErrorMessage } from '../utils'
-
 import { planning, showModal } from './index'
 
 /**
@@ -13,17 +13,18 @@ import { planning, showModal } from './index'
  * @param {string} name - The name of the Agenda to create
  * @return Promise
  */
-const _createOrUpdateAgenda = ({ _id, name, is_enabled }) => (
+const _createOrUpdateAgenda = (newAgenda) => (
     (dispatch, getState, { api, notify }) => {
         let originalAgenda = {}
         const agendas = selectors.getAgendas(getState())
+        let diff = pick(newAgenda, ['name', 'is_enabled'])
 
-        if (_id) {
-            originalAgenda = agendas.find((agenda) => agenda._id === _id)
+        if (newAgenda._id) {
+            originalAgenda = agendas.find((agenda) => agenda._id === newAgenda._id)
             originalAgenda = cloneDeep(originalAgenda || {})
         }
 
-        return api('agenda').save(originalAgenda, { name, is_enabled })
+        return api('agenda').save(originalAgenda, diff)
         .then((agenda) => {
             notify.success('The agenda has been created/updated.')
             dispatch(hideModal())
@@ -290,7 +291,7 @@ const _createPlanningFromEvent = (event) => (
             headline: event.name,
             subject: event.subject,
             anpa_category: event.anpa_category,
-            agendas: [currentAgenda._id]
+            agendas: [currentAgenda._id],
         }))
     }
 )
@@ -307,7 +308,7 @@ const fetchSelectedAgendaPlannings = () => (
         if (agenda) {
             return dispatch(fetchPlannings({ agendas: [agenda._id] }))
         } else {
-            return dispatch(fetchPlannings({ no_agenda: true}))
+            return dispatch(fetchPlannings({ no_agenda: true }))
         }
     }
 )
@@ -335,7 +336,6 @@ const addEventToCurrentAgenda = checkPermission(
     PRIVILEGES.PLANNING_MANAGEMENT,
     'Unauthorised to create a new planning item!'
 )
-
 
 const createPlanningFromEvent = checkPermission(
     _createPlanningFromEvent,

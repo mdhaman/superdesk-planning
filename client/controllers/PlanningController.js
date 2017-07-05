@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
-import {createStore, registerNotifications } from '../utils'
+import { createStore, registerNotifications } from '../utils'
 import * as actions from '../actions'
 import { PlanningApp } from '../components'
 

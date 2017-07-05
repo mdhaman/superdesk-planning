@@ -1,8 +1,7 @@
 import * as selectors from '../selectors'
 import * as actions from '../actions'
-import { pickBy, cloneDeep, isNil, has, get, isEqual, map } from 'lodash'
-import { addToCurrentAgenda, selectAgenda,
-    fetchSelectedAgendaPlannings } from './agenda'
+import { pickBy, cloneDeep, isNil, has, get, isEqual } from 'lodash'
+import { addToCurrentAgenda, selectAgenda, fetchSelectedAgendaPlannings } from './agenda'
 import { PRIVILEGES, PLANNING, ITEM_STATE } from '../constants'
 import { checkPermission, getErrorMessage } from '../utils'
 import moment from 'moment'
@@ -250,12 +249,12 @@ const fetchPlannings = (params={}) => (
 
         if (params.agendas) {
             q = { source: { query: { bool: {} } } }
-            q.source.query.bool.must = {terms: {agendas: params.agendas}}
+            q.source.query.bool.must = { terms: { agendas: params.agendas } }
         }
 
         if (params.no_agenda) {
             q = { source: { query: { bool: {} } } }
-            q.source.query.bool.must_not = {exists: {field: 'agendas'}}
+            q.source.query.bool.must_not = { exists: { field: 'agendas' } }
         }
         // fetch the plannings
         return dispatch(performFetchRequest(q))
@@ -390,7 +389,7 @@ const previewPlanningAndOpenAgenda = (planning) => (
         const agenda = selectors.getAgendas(getState()).find(
             (a) => (planningItem.agendas || []).indexOf(a._id) > -1
         )
-        console.log(agenda)
+
         if (agenda && agenda._id !== selectors.getCurrentAgendaId(getState())) {
             dispatch(selectAgenda(agenda._id))
         }
