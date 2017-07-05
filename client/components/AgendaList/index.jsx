@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from 'react-bootstrap'
 import { AgendaItem } from '../../components'
-import {isArray} from 'lodash'
+import { isArray } from 'lodash'
 
 
 export const AgendaList = ({

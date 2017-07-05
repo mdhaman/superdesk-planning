@@ -1,8 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import {
-    PlanningSettingsContainer
-} from './index'
+import { PlanningSettingsContainer } from './index'
 
 const PlanningSettingsAppComponent = () => {
     return (
@@ -12,6 +10,4 @@ const PlanningSettingsAppComponent = () => {
 
 PlanningSettingsAppComponent.propTypes = { }
 
-const mapStateToProps = (state) => ({})
-
-export const PlanningSettingsApp = connect(mapStateToProps)(PlanningSettingsAppComponent)
+export const PlanningSettingsApp = connect(null)(PlanningSettingsAppComponent)

@@ -29,8 +29,8 @@ export const SelectAgendaComponent = ({ enabledAgendas, disabledAgendas, onChang
 )
 
 SelectAgendaComponent.propTypes = {
-    activeAgendas: PropTypes.array.isRequired,
-    spikedAgendas: PropTypes.array,
+    enabledAgendas: PropTypes.array.isRequired,
+    disabledAgendas: PropTypes.array,
     onChange: PropTypes.func.isRequired,
     currentAgenda: PropTypes.string,
     isLoading: PropTypes.bool,

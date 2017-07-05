@@ -21,7 +21,10 @@ export class ModalWithForm extends React.Component {
         return (
             <Modal show={this.props.show}
                    onHide={this.props.onHide}
-                   large={isBoolean(this.props.large) ? this.props.large : false}>
+                   large={isBoolean(this.props.large) ? this.props.large : false}
+                   fill={isBoolean(this.props.fill) ? this.props.fill : false}
+                   fullscreen={isBoolean(this.props.fullscreen) ? this.props.fullscreen : false}
+                   white={isBoolean(this.props.white) ? this.props.white : false}>
                 <Modal.Header>
                     <a className="close" onClick={this.props.onHide}>
                         <i className="icon-close-small" />
@@ -56,5 +59,4 @@ ModalWithForm.propTypes = {
     fill: React.PropTypes.bool,
     fullscreen: React.PropTypes.bool,
     white: React.PropTypes.bool,
-    className: React.PropTypes.string,
 }

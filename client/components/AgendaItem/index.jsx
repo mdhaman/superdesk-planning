@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react'
-import { get } from 'lodash'
 import moment from 'moment'
 import { tooltips } from '../index'
 import { OverlayTrigger } from 'react-bootstrap'

@@ -1,4 +1,4 @@
-import {WS_NOTIFICATION} from '../constants'
+import { WS_NOTIFICATION } from '../constants'
 import * as actions from '../actions'
 import { forEach } from 'lodash'
 

@@ -99,7 +99,6 @@ export const getFilteredPlanningList = createSelector(
         }
 
         const currentAgendaId = currentAgenda ? currentAgenda._id : null
-        const plannings = planningsInList.filter((planning) => includes(planning.agendas, currentAgendaId))
         let plannings = []
 
         if (currentAgendaId) {
@@ -141,12 +140,9 @@ export const getFilteredPlanningListEvents = createSelector(
 
 export const getCurrentPlanning = createSelector(
     [getCurrentPlanningId, getStoredPlannings, getAgendas],
-    (currentPlanningId, storedPlannings, agendas) => {
+    (currentPlanningId, storedPlannings) => {
         if (currentPlanningId) {
-            const planning = storedPlannings[currentPlanningId]
-            // const planningAgendas = agendas.filter((a) => includes(planning.agendas || [], a._id))
-            // planning.agendas = planningAgendas
-            return planning
+            return storedPlannings[currentPlanningId]
         }
     }
 )

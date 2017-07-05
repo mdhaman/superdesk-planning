@@ -34,10 +34,12 @@ AuditInformationComponent.propTypes = {
         React.PropTypes.array,
         React.PropTypes.object,
     ]),
+    createdBy:React.PropTypes.any,
+    createdAt:React.PropTypes.any,
+    updatedBy:React.PropTypes.any,
+    updatedAt:React.PropTypes.any,
 }
 
-const mapStateToProps = (state) => ({
-    users: selectors.getUsers(state),
-})
+const mapStateToProps = (state) => ({ users: selectors.getUsers(state) })
 
 export const AuditInformation = connect(mapStateToProps)(AuditInformationComponent)
