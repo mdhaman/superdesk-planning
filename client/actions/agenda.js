@@ -77,8 +77,7 @@ const selectAgenda = (agendaId) => (
             type: AGENDA.ACTIONS.SELECT_AGENDA,
             payload: agendaId,
         })
-        // close the planning details
-        dispatch(planning.ui.closeEditor())
+
         // update the url (deep linking)
         $timeout(() => ($location.search('agenda', agendaId)))
         // reload the plannings list
@@ -284,7 +283,7 @@ const fetchSelectedAgendaPlannings = () => (
 const createOrUpdateAgenda = checkPermission(
     _createOrUpdateAgenda,
     PRIVILEGES.AGENDA_MANAGEMENT,
-    'Unauthorised to create or update an agenda'
+    'Unauthorised to create or update an agenda!'
 )
 
 /**
