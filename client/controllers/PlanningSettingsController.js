@@ -15,6 +15,8 @@ PlanningSettingsController.$inject = [
     'privileges',
     'userList',
     'session',
+    '$location',
+    '$timeout',
 ]
 export function PlanningSettingsController(
     $scope,
@@ -25,7 +27,9 @@ export function PlanningSettingsController(
     notify,
     privileges,
     userList,
-    session
+    session,
+    $location,
+    $timeout
 ) {
     // create the application store
     const store = createStore({
@@ -38,6 +42,8 @@ export function PlanningSettingsController(
             privileges,
             userList,
             session,
+            $location,
+            $timeout,
         },
     })
     // load data in the store
