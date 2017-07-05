@@ -321,7 +321,7 @@ const fetchSelectedAgendaPlannings = () => (
 const createOrUpdateAgenda = checkPermission(
     _createOrUpdateAgenda,
     PRIVILEGES.AGENDA_MANAGEMENT,
-    'Unauthorised to create or update an agenda'
+    'Unauthorised to create or update an agenda!'
 )
 
 /**
