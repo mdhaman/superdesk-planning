@@ -4,10 +4,10 @@ import * as selectors from '../../selectors'
 import * as actions from '../../actions'
 import { orderBy } from 'lodash'
 import { AgendaList } from '../../components'
-import './style.scss'
 
 export function AgendasListComponent({
-    agendas,
+    enabledAgendas,
+    disabledAgendas,
     openCreateAgenda,
     openEditAgenda,
     privileges,
@@ -17,13 +17,14 @@ export function AgendasListComponent({
             privileges={privileges}
             openCreateAgenda={openCreateAgenda}
             openEditAgenda={openEditAgenda}
-            agendas={agendas}
-        />
+            enabledAgendas={enabledAgendas}
+            disabledAgendas={disabledAgendas}/>
     )
 }
 
 AgendasListComponent.propTypes = {
-    agendas: React.PropTypes.array,
+    enabledAgendas: React.PropTypes.array,
+    disabledAgendas: React.PropTypes.array,
     privileges: React.PropTypes.object.isRequired,
     openCreateAgenda: React.PropTypes.func,
     openEditAgenda: React.PropTypes.func,
@@ -31,7 +32,8 @@ AgendasListComponent.propTypes = {
 
 const mapStateToProps = (state) => (
     {
-        agendas: orderBy(selectors.getActiveAgendas(state), ['name'], ['desc']),
+        enabledAgendas: orderBy(selectors.getEnabledAgendas(state), ['name'], ['asc']),
+        disabledAgendas: orderBy(selectors.getDisabledAgendas(state), ['name'], ['asc']),
         privileges: selectors.getPrivileges(state),
     }
 )
