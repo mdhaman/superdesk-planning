@@ -1,6 +1,7 @@
 from apps.archive.common import set_original_creator
 from apps.auth import get_user_id
-from superdesk import Resource, Service, config
+from superdesk import Resource, Service, config, get_resource_service
+from superdesk.errors import SuperdeskApiError
 from superdesk.notification import push_notification
 
 
@@ -57,3 +58,8 @@ class AgendasService(Service):
             item=str(original[config.ID_FIELD]),
             user=str(original.get('original_creator', ''))
         )
+
+    def on_delete(self, doc):
+        if get_resource_service('planning').get_planning_by_agenda_id(doc.get(config.ID_FIELD)).count() > 0:
+            raise SuperdeskApiError.badRequestError(message='Agenda is referenced by Planning items. '
+                                                            'Cannot delete Agenda')
