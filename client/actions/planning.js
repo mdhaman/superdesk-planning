@@ -381,14 +381,12 @@ const _openPlanningEditor = (planning) => (
  * Also changes the currently selected agenda to the the agenda this planning
  * item is associated with
  * @param planning
+ * @param agenda
  * @return Promise
  */
-const previewPlanningAndOpenAgenda = (planning) => (
+const previewPlanningAndOpenAgenda = (planning, agenda) => (
     (dispatch, getState) => {
         const planningItem = get(selectors.getStoredPlannings(getState()), planning)
-        const agenda = selectors.getAgendas(getState()).find(
-            (a) => (planningItem.agendas || []).indexOf(a._id) > -1
-        )
 
         if (agenda && agenda._id !== selectors.getCurrentAgendaId(getState())) {
             dispatch(selectAgenda(agenda._id))
