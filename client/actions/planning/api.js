@@ -5,52 +5,16 @@ import * as selectors from '../../selectors'
 import moment from 'moment'
 
 /**
- * Action dispatcher that marks a Planning item as spiked
- * @param {object} item - The planning item to spike
- * @return Promise
- */
-const spike = (item) => (
-    (dispatch, getState, { api }) => (
-        api.update('planning_spike', item, {})
-        .then(() => {
-            dispatch({
-                type: PLANNING.ACTIONS.SPIKE_PLANNING,
-                payload: item,
-            })
-            return dispatch(self.fetch())
-        }, (error) => (Promise.reject(error)))
-    )
-)
-
-/**
- * Action dispatcher that marks a Planning item as active
- * @param {object} item - The Planning item to unspike
- * @return Promise
- */
-const unspike = (item) => (
-    (dispatch, getState, { api }) => (
-        api.update('planning_unspike', item, {})
-        .then(() => {
-            dispatch({
-                type: PLANNING.ACTIONS.UNSPIKE_PLANNING,
-                payload: item,
-            })
-            return dispatch(self.fetch())
-        }, (error) => (Promise.reject(error)))
-    )
-)
-
-/**
  * Action dispatcher to perform fetch the list of planning items from the server
- * @param {Array} ids - An array of Planning item ids to fetch
  * @param {string} eventItem - An event ID to fetch Planning items for that event
  * @param {string} state - Planning item state
+ * @param {agendas} list of agenda ids
  * @return Promise
  */
 const query = ({
-    ids,
     eventItem,
     state=ITEM_STATE.ALL,
+    agendas
 }) => (
     (dispatch, getState, { api }) => {
         let query = {}
@@ -80,6 +44,12 @@ const query = ({
 
         if (eventItem) {
             must.push({ term: { event_item: eventItem } })
+        }
+
+        if (agendas) {
+            must.push({ terms: { agendas: params.agendas } })
+        } else {
+            mustNot.push({ exists: { field: 'agendas' } })
         }
 
         switch (state) {

@@ -252,31 +252,12 @@ export const getEventToBeDetailed = createSelector(
                 ...event,
                 _plannings: Object.keys(storedPlannings).filter((pKey) => (
                     storedPlannings[pKey].event_item === showEventDetails
-                )).map((pKey) => ({
-                    ...storedPlannings[pKey],
-                    _agenda: agendas.find((a) => a.planning_items ?
-                        a.planning_items.indexOf(pKey) > -1 : false),
-                })),
+                )),
             }
         }
     }
 )
 
-/** Returns the list of Agendas that are `spiked` */
-export const getSpikedAgendas = createSelector(
-    [getAgendas],
-    (agendas) => (
-        agendas.filter((a) => a.state === ITEM_STATE.SPIKED)
-    )
-)
-
-/** Returns the list of Agendas that are not `spiked` */
-export const getActiveAgendas = createSelector(
-    [getAgendas],
-    (agendas) => (
-        agendas.filter((a) => a.state !== ITEM_STATE.SPIKED)
-    )
-)
 
 /** Returns the list of Agendas that are assigned to planning items */
 export const getPlanningItemAgendas = createSelector(

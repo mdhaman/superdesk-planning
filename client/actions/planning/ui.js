@@ -186,11 +186,9 @@ const _openEditor = (item) => ({
  * @param {string} pid - The Planning item id to open
  * @return Promise
  */
-const previewPlanningAndOpenAgenda = (pid) => (
+const previewPlanningAndOpenAgenda = (pid, agenda) => (
     (dispatch, getState) => {
-        const agenda = selectors.getAgendas(getState()).find(
-            (a) => (a.planning_items || []).indexOf(pid) > -1
-        )
+
         if (agenda && agenda._id !== selectors.getCurrentAgendaId(getState())) {
             dispatch(actions.selectAgenda(agenda._id))
         }
