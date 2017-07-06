@@ -24,5 +24,5 @@ export class TabContent extends React.Component {
 TabContent.propTypes = {
     activeTab: React.PropTypes.string.isRequired,
     tabName: React.PropTypes.string.isRequired,
-    children: React.PropTypes.array,
+    children: React.PropTypes.node,
 }

@@ -25,6 +25,7 @@ class PlanningPanel extends React.Component {
         const {
             planningList,
             currentAgenda,
+            currentAgendaId,
             onPlanningCreation,
             planningsAreLoading,
             editPlanningViewOpen,
@@ -88,7 +89,7 @@ class PlanningPanel extends React.Component {
                                 <div className="Planning-panel__empty-message">
                                     Loading
                                 </div>
-                            || !currentAgenda &&
+                            || !currentAgenda! &&
                                 <div className="Planning-panel__empty-message">
                                     <div className="panel-info">
                                         <div className="panel-info__icon">
@@ -97,6 +98,9 @@ class PlanningPanel extends React.Component {
                                         <h3 className="panel-info__heading">Choose an agenda</h3>
                                         <p className="panel-info__description">...from the drop-down list above.</p>
                                     </div>
+                            || !currentAgendaId &&
+                                <div className="Planning-panel__empty-message">
+                                    Choose an agenda from the drop-down list above.
                                 </div>
                             || (planningList && planningList.length < 1 && currentAgenda) &&
                                 <div className="Planning-panel__empty-message">
@@ -118,6 +122,7 @@ class PlanningPanel extends React.Component {
 }
 
 PlanningPanel.propTypes = {
+    currentAgendaId: React.PropTypes.string,
     currentAgenda: React.PropTypes.object,
     planningList: React.PropTypes.array.isRequired,
     planningsAreLoading: React.PropTypes.bool,
@@ -135,6 +140,7 @@ PlanningPanel.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
+    currentAgendaId: selectors.getCurrentAgendaId(state),
     currentAgenda: selectors.getCurrentAgenda(state),
     planningList: selectors.getFilteredPlanningList(state),
     planningsAreLoading: state.agenda.agendasAreLoading || state.planning.planningsAreLoading,

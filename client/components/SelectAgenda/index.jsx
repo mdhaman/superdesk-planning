@@ -1,11 +1,12 @@
 import React, { PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { selectAgenda } from '../../actions'
+import { AGENDA } from '../../constants'
 import { getCurrentAgendaId, getEnabledAgendas, getDisabledAgendas } from '../../selectors'
 
 export const SelectAgendaComponent = ({ enabledAgendas, disabledAgendas, onChange, currentAgenda, isLoading }) => (
     <select onChange={onChange} value={currentAgenda || ''}>
-        <option>
+        <option value={AGENDA.FILTER.SELECT_AGENDA}>
             {isLoading && 'Loading...' || 'Select an agenda'}
         </option>
         {enabledAgendas.map((agenda) => (
@@ -24,7 +25,7 @@ export const SelectAgendaComponent = ({ enabledAgendas, disabledAgendas, onChang
             </option>
         ))}
         <option disabled>──────────</option>
-        <option value={-1}>No Agenda</option>
+        <option value={AGENDA.FILTER.PLANNING_NOT_IN_AGENDA}>Planning Item Not In Agenda</option>
     </select>
 )
 

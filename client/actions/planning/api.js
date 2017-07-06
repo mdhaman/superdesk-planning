@@ -51,32 +51,12 @@ const query = ({
     eventItem,
     state=ITEM_STATE.ALL,
     agendas,
+    planningNotInAgenda=false
 }) => (
     (dispatch, getState, { api }) => {
         let query = {}
         let mustNot = []
         let must = []
-
-        // if (ids) {
-        //     const chunkSize = PLANNING.FETCH_IDS_CHUNK_SIZE
-        //     if (ids.length <= chunkSize) {
-        //         must.push({ terms: { _id: ids } })
-        //     } else {
-        //         // chunk the requests
-        //         const requests = []
-        //         for (let i = 0; i < Math.ceil(ids.length / chunkSize); i++) {
-        //             const args = {
-        //                 ...arguments[0],
-        //                 ids: ids.slice(i * chunkSize, (i + 1) * chunkSize),
-        //             }
-        //             requests.push(dispatch(self.query(args)))
-        //         }
-        //         // flattern responses and return a response-like object
-        //         return Promise.all(requests).then((responses) => (
-        //             Array.prototype.concat(...responses)
-        //         ))
-        //     }
-        // }
 
         if (eventItem) {
             must.push({ term: { event_item: eventItem } })
@@ -84,8 +64,15 @@ const query = ({
 
         if (agendas) {
             must.push({ terms: { agendas: agendas } })
-        } else {
+        }
+
+        if (planningNotInAgenda) {
             mustNot.push({ exists: { field: 'agendas' } })
+        }
+
+        if (must.length === 0 && mustNot.length === 0) {
+            // when the no agenda is selected
+            return Promise.resolve([])
         }
 
         switch (state) {
@@ -335,6 +322,10 @@ const save = (item, original=undefined) => (
             delete item.coverages
             // remove nested original creator
             delete item.original_creator
+
+            if (item.agendas) {
+                item.agendas = item.agendas.map((agenda) => agenda._id)
+            }
 
             // Save through the api
             return api('planning').save(cloneDeep(originalItem), item)
