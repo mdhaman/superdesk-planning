@@ -19,7 +19,7 @@ export const RelatedPlanningsComponent = ({ plannings, openPlanningItem, openPla
                 {state && state === 'spiked' &&
                     <span className="label label--alert">spiked</span>
                 }
-                Created by { display_name } in {
+                {slugline} Created by { display_name } in {
                     _agendas.map((_agenda) => (
                         _agenda &&
                             <span>

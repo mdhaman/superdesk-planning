@@ -5,6 +5,42 @@ import * as selectors from '../../selectors'
 import moment from 'moment'
 
 /**
+ * Action dispatcher that marks a Planning item as spiked
+ * @param {object} item - The planning item to spike
+ * @return Promise
+ */
+const spike = (item) => (
+    (dispatch, getState, { api }) => (
+        api.update('planning_spike', item, {})
+        .then(() => {
+            dispatch({
+                type: PLANNING.ACTIONS.SPIKE_PLANNING,
+                payload: item,
+            })
+            return dispatch(self.fetch())
+        }, (error) => (Promise.reject(error)))
+    )
+)
+
+/**
+ * Action dispatcher that marks a Planning item as active
+ * @param {object} item - The Planning item to unspike
+ * @return Promise
+ */
+const unspike = (item) => (
+    (dispatch, getState, { api }) => (
+        api.update('planning_unspike', item, {})
+        .then(() => {
+            dispatch({
+                type: PLANNING.ACTIONS.UNSPIKE_PLANNING,
+                payload: item,
+            })
+            return dispatch(self.fetch())
+        }, (error) => (Promise.reject(error)))
+    )
+)
+
+/**
  * Action dispatcher to perform fetch the list of planning items from the server
  * @param {string} eventItem - An event ID to fetch Planning items for that event
  * @param {string} state - Planning item state
@@ -14,40 +50,40 @@ import moment from 'moment'
 const query = ({
     eventItem,
     state=ITEM_STATE.ALL,
-    agendas
+    agendas,
 }) => (
     (dispatch, getState, { api }) => {
         let query = {}
         let mustNot = []
         let must = []
 
-        if (ids) {
-            const chunkSize = PLANNING.FETCH_IDS_CHUNK_SIZE
-            if (ids.length <= chunkSize) {
-                must.push({ terms: { _id: ids } })
-            } else {
-                // chunk the requests
-                const requests = []
-                for (let i = 0; i < Math.ceil(ids.length / chunkSize); i++) {
-                    const args = {
-                        ...arguments[0],
-                        ids: ids.slice(i * chunkSize, (i + 1) * chunkSize),
-                    }
-                    requests.push(dispatch(self.query(args)))
-                }
-                // flattern responses and return a response-like object
-                return Promise.all(requests).then((responses) => (
-                    Array.prototype.concat(...responses)
-                ))
-            }
-        }
+        // if (ids) {
+        //     const chunkSize = PLANNING.FETCH_IDS_CHUNK_SIZE
+        //     if (ids.length <= chunkSize) {
+        //         must.push({ terms: { _id: ids } })
+        //     } else {
+        //         // chunk the requests
+        //         const requests = []
+        //         for (let i = 0; i < Math.ceil(ids.length / chunkSize); i++) {
+        //             const args = {
+        //                 ...arguments[0],
+        //                 ids: ids.slice(i * chunkSize, (i + 1) * chunkSize),
+        //             }
+        //             requests.push(dispatch(self.query(args)))
+        //         }
+        //         // flattern responses and return a response-like object
+        //         return Promise.all(requests).then((responses) => (
+        //             Array.prototype.concat(...responses)
+        //         ))
+        //     }
+        // }
 
         if (eventItem) {
             must.push({ term: { event_item: eventItem } })
         }
 
         if (agendas) {
-            must.push({ terms: { agendas: params.agendas } })
+            must.push({ terms: { agendas: agendas } })
         } else {
             mustNot.push({ exists: { field: 'agendas' } })
         }
