@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { orderBy, get, sortBy, keys, includes, isEmpty } from 'lodash'
+import { orderBy, get, sortBy, includes, isEmpty } from 'lodash'
 // import { isAllDay } from '../utils'
 import moment from 'moment'
 import { ITEM_STATE } from '../constants'
@@ -98,13 +98,16 @@ export const getFilteredPlanningList = createSelector(
                 ))
         }
 
-        const currentAgendaId = currentAgenda ? currentAgenda._id : null
         let plannings = []
 
-        if (currentAgendaId) {
-            plannings = planningsInList.filter((planning) => includes(planning.agendas, currentAgendaId))
+        if (currentAgenda && currentAgenda._id) {
+            plannings = planningsInList.filter(
+                (planning) => includes(planning.agendas, currentAgenda._id)
+            )
         } else {
-            plannings = planningsInList.filter((planning) => !planning.agendas || isEmpty(planning.agendas))
+            plannings = planningsInList.filter(
+                (planning) => !planning.agendas || isEmpty(planning.agendas)
+            )
         }
 
         plannings = plannings
@@ -235,8 +238,8 @@ export const getEventsOrderedByDay = createSelector(
 
 /** Used for event details */
 export const getEventToBeDetailed = createSelector(
-    [getShowEventDetails, getEvents, getStoredPlannings, getAgendas],
-    (showEventDetails, events, storedPlannings, agendas) => {
+    [getShowEventDetails, getEvents, getStoredPlannings],
+    (showEventDetails, events, storedPlannings) => {
         const event = events[showEventDetails]
         if (event) {
             return {
@@ -248,7 +251,6 @@ export const getEventToBeDetailed = createSelector(
         }
     }
 )
-
 
 /** Returns the list of Agendas that are assigned to planning items */
 export const getPlanningItemAgendas = createSelector(
