@@ -2,7 +2,6 @@ import { hideModal } from './modal'
 import * as selectors from '../selectors'
 import { SubmissionError } from 'redux-form'
 import { cloneDeep, get, pick } from 'lodash'
-import { fetchPlannings, savePlanning } from './planning'
 import { PRIVILEGES, ITEM_STATE, AGENDA } from '../constants'
 import { checkPermission, getErrorMessage } from '../utils'
 import { planning } from './index'
@@ -266,12 +265,7 @@ const _createPlanningFromEvent = (event) => (
 const fetchSelectedAgendaPlannings = () => (
     (dispatch, getState) => {
         const agenda = selectors.getCurrentAgenda(getState())
-        // TODO: use plannings API
-        if (agenda) {
-            return dispatch(fetchPlannings({ agendas: [agenda._id] }))
-        } else {
-            return dispatch(fetchPlannings({ no_agenda: true }))
-        }
+        return dispatch(planning.api.fetch(agenda ? [agenda._id] : null))
     }
 )
 

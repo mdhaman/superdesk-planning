@@ -56,9 +56,8 @@ const mapStateToProps = (state, ownProps) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    // TODO: change to planning api
     openPlanningClick: (planningId, agenda) => (
-        dispatch(previewPlanningAndOpenAgenda(planningId, agenda))
+        dispatch(actions.planning.ui.previewPlanningAndOpenAgenda(planningId, agenda))
     ),
 })
 
