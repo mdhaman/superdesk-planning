@@ -25,6 +25,7 @@ class PlanningPanel extends React.Component {
         const {
             planningList,
             currentAgenda,
+            currentAgendaId,
             onPlanningCreation,
             planningsAreLoading,
             editPlanningViewOpen,
@@ -88,6 +89,10 @@ class PlanningPanel extends React.Component {
                                 <div className="Planning-panel__empty-message">
                                     Loading
                                 </div>
+                            || !currentAgendaId &&
+                                <div className="Planning-panel__empty-message">
+                                    Choose an agenda from the drop-down list above.
+                                </div>
                             || (planningList && planningList.length < 1 && currentAgenda) &&
                                 <div className="Planning-panel__empty-message">
                                     There are no planning items in this agenda.<br/>
@@ -103,6 +108,7 @@ class PlanningPanel extends React.Component {
 }
 
 PlanningPanel.propTypes = {
+    currentAgendaId: React.PropTypes.string,
     currentAgenda: React.PropTypes.object,
     planningList: React.PropTypes.array.isRequired,
     planningsAreLoading: React.PropTypes.bool,
@@ -120,6 +126,7 @@ PlanningPanel.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
+    currentAgendaId: selectors.getCurrentAgendaId(state),
     currentAgenda: selectors.getCurrentAgenda(state),
     planningList: selectors.getFilteredPlanningList(state),
     planningsAreLoading: state.agenda.agendasAreLoading || state.planning.planningsAreLoading,
@@ -140,7 +147,7 @@ const mapDispatchToProps = (dispatch) => ({
     ),
     handleSearch: (text) => (dispatch(actions.planning.ui.filterByKeyword(text))),
     addEventToCurrentAgenda: (event) => (dispatch(actions.addEventToCurrentAgenda(event))),
-    toggleEventsList: () => (dispatch(actions.planning.ui.toggleEventsList())),
+    toggleEventsList: () => (dispatch(actions.toggleEventsList())),
     onFutureToggleChange: () => (dispatch(actions.planning.ui.toggleOnlyFutureFilter())),
     onSpikedToggleChange: () => (dispatch(actions.planning.ui.toggleOnlySpikedFilter())),
 })

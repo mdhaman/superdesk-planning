@@ -246,7 +246,9 @@ export const getEventToBeDetailed = createSelector(
                 ...event,
                 _plannings: Object.keys(storedPlannings).filter((pKey) => (
                     storedPlannings[pKey].event_item === showEventDetails
-                )),
+                )).map((key) => ({
+                    ...storedPlannings[key]
+                })),
             }
         }
     }

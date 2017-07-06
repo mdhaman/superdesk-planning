@@ -1,7 +1,7 @@
 import { hideModal } from './modal'
 import * as selectors from '../selectors'
 import { SubmissionError } from 'redux-form'
-import { cloneDeep, get, pick } from 'lodash'
+import { cloneDeep, get, pick, unDefined } from 'lodash'
 import { PRIVILEGES, ITEM_STATE, AGENDA } from '../constants'
 import { checkPermission, getErrorMessage } from '../utils'
 import { planning } from './index'
@@ -72,6 +72,7 @@ const receiveAgendas = (agendas) => ({
  */
 const selectAgenda = (agendaId) => (
     (dispatch, getState, { $timeout, $location }) => {
+        agendaId = agendaId === AGENDA.FILTER.SELECT_AGENDA ? null : agendaId
         // save in store selected agenda
         dispatch({
             type: AGENDA.ACTIONS.SELECT_AGENDA,
@@ -265,7 +266,13 @@ const _createPlanningFromEvent = (event) => (
 const fetchSelectedAgendaPlannings = () => (
     (dispatch, getState) => {
         const agenda = selectors.getCurrentAgenda(getState())
-        return dispatch(planning.api.fetch(agenda ? [agenda._id] : null))
+        const agendaId = selectors.getCurrentAgendaId(getState())
+        const params = {
+            planningNotInAgenda: agendaId === AGENDA.FILTER.PLANNING_NOT_IN_AGENDA,
+            agendas: agenda ? [agenda._id] : null
+        }
+
+        return dispatch(planning.api.fetch(params))
     }
 )
 
