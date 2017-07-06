@@ -10,7 +10,7 @@ export const RelatedPlanningsComponent = ({ plannings, openPlanningItem, openPla
             _id,
             slugline,
             anpa_category,
-            _agenda,
+            _agendas,
             original_creator: { display_name },
             state,
         }) => (
@@ -19,12 +19,22 @@ export const RelatedPlanningsComponent = ({ plannings, openPlanningItem, openPla
                 {state && state === 'spiked' &&
                     <span className="label label--alert">spiked</span>
                 }
-                <a onClick={ openPlanningItem ? openPlanningClick.bind(null, _id) : null}>
-                    {slugline} created by {display_name} in {_agenda && _agenda.name} agenda
-                    {anpa_category && anpa_category.length && (
-                        <span>&nbsp;[{anpa_category.map((c) => c.name).join(', ')}]</span>
-                    )}
-                </a>
+                Created by { display_name } in {
+                    _agendas.map((_agenda) => (
+                        _agenda &&
+                            <span>
+                                <a onClick={ openPlanningItem ? openPlanningClick.bind(null, _id, _agenda) : null}>
+                                    {
+                                        _agenda.is_enabled ? `${_agenda.name}` : `${_agenda.name} - [Disabled]`
+                                    }
+                                </a>
+                            ,&nbsp;</span>
+                    ))
+                }
+                {anpa_category && anpa_category.length && (
+                    <span>&nbsp;[{anpa_category.map((c) => c.name).join(', ')}]</span>
+                    )
+                }
             </li>
         ))}
     </ul>
@@ -40,14 +50,15 @@ const mapStateToProps = (state, ownProps) => ({
     plannings: ownProps.plannings.map((planning) => {
         return {
             ...planning,
-            _agenda: selectors.getAgendas(state).find((a) => a.planning_items ?
-                        a.planning_items.indexOf(planning._id) > -1 : false),
+            _agendas: !planning.agendas ? [] : planning.agendas.map((agendaId) =>
+                selectors.getAgendas(state).find((agenda => agenda._id === agendaId))),
         }}),
 })
 
 const mapDispatchToProps = (dispatch) => ({
-    openPlanningClick: (planningId) => (
-        dispatch(actions.planning.ui.previewPlanningAndOpenAgenda(planningId))
+    // TODO: change to planning api
+    openPlanningClick: (planningId, agenda) => (
+        dispatch(previewPlanningAndOpenAgenda(planningId, agenda))
     ),
 })
 
