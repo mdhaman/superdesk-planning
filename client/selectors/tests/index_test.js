@@ -1,6 +1,7 @@
 import * as selectors from '../index'
 import { cloneDeep } from 'lodash'
 import moment from 'moment'
+import { AGENDA } from '../../constants'
 
 describe('selectors', () => {
     const state = {
@@ -39,14 +40,15 @@ describe('selectors', () => {
                 b: {
                     name: 'name b',
                     state: 'active',
-                    agendas: ['2'],
+                    agendas: ['1', '2'],
                 },
                 c: { name: 'plan c' },
                 d: {
                     name: 'plan d',
                     state: 'spiked',
-                    agendas: ['3'],
+                    agendas: ['1'],
                 },
+                e: { name: 'plan e' },
             },
             planningsInList: ['a', 'b', 'd'],
             currentPlanningId: 'b',
@@ -96,6 +98,13 @@ describe('selectors', () => {
             newState.planning.planningsInList = []
             result = _getPlanningItems()
             expect(result).toEqual([])
+        })
+
+        it('Planning items with no agenda', () => {
+            newState.agenda.currentAgendaId = AGENDA.FILTER.PLANNING_NOT_IN_AGENDA
+            newState.planning.planningsInList = ['c', 'e']
+            result = _getPlanningItems()
+            expect(result).toEqual([newState.planning.plannings.c, newState.planning.plannings.e])
         })
 
         it('empty list when all items are spiked', () => {
@@ -184,7 +193,7 @@ describe('selectors', () => {
     it('getEventToBeDetailed', () => {
         const event = selectors.getEventToBeDetailed(state)
         expect(event._plannings.length).toBe(1)
-        expect(event._plannings[0]._agenda.name).toBe('Agenda 1')
+        expect(event._plannings[0]._agendas[0].name).toBe('Agenda 1')
     })
 
     it('getDisabledAgendas', () => {

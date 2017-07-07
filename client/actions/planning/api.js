@@ -51,7 +51,7 @@ const query = ({
     eventItem,
     state=ITEM_STATE.ALL,
     agendas,
-    planningNotInAgenda=false
+    planningNotInAgenda=false,
 }) => (
     (dispatch, getState, { api }) => {
         let query = {}
@@ -68,11 +68,6 @@ const query = ({
 
         if (planningNotInAgenda) {
             mustNot.push({ exists: { field: 'agendas' } })
-        }
-
-        if (must.length === 0 && mustNot.length === 0) {
-            // when the no agenda is selected
-            return Promise.resolve([])
         }
 
         switch (state) {
@@ -324,7 +319,7 @@ const save = (item, original=undefined) => (
             delete item.original_creator
 
             if (item.agendas) {
-                item.agendas = item.agendas.map((agenda) => agenda._id)
+                item.agendas = item.agendas.map((agenda) => agenda._id || agenda)
             }
 
             // Save through the api
@@ -438,11 +433,13 @@ const saveAndReloadCurrentAgenda = (item) => (
                 if (!currentAgenda) {
                     errorMessage.data._message = 'No Agenda is currently selected.'
                     return Promise.reject(errorMessage)
-                } else if (get(currentAgenda, 'state', ITEM_STATE.ACTIVE) === ITEM_STATE.SPIKED) {
+                } else if (!currentAgenda.is_enabled) {
                     errorMessage.data._message =
-                        'Cannot create a new planning item in a spiked Agenda.'
+                        'Cannot create a new planning item in a disabled Agenda.'
                     return Promise.reject(errorMessage)
                 }
+
+                item.agendas = [currentAgenda]
             }
 
             return dispatch(self.save(item, originalItem))
@@ -450,17 +447,8 @@ const saveAndReloadCurrentAgenda = (item) => (
                 // If this is a new planning item, then re-fetch the selected
                 // agendas planning items
                 if (isEqual(originalItem, {})) {
-                    return dispatch(actions.addToCurrentAgenda(item))
-                    .then(
-                        () => (
-                            dispatch(actions.fetchSelectedAgendaPlannings())
-                            .then(
-                                () => (Promise.resolve(item)),
-                                (error) => (Promise.reject(error))
-                            )
-                        ),
-                        (error) => (Promise.reject(error))
-                    )
+                    return dispatch(actions.fetchSelectedAgendaPlannings())
+                        .then(() => (Promise.resolve(item)), (error) => (Promise.reject(error)))
                 }
 
                 return Promise.resolve(item)

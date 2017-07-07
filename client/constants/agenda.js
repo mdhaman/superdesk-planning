@@ -7,6 +7,6 @@ export const AGENDA = {
     },
     FILTER: {
         PLANNING_NOT_IN_AGENDA: 'PLANNING_NOT_IN_AGENDA',
-        SELECT_AGENDA: 'SELECT_AGENDA'
-    }
+        SELECT_AGENDA: 'SELECT_AGENDA',
+    },
 }

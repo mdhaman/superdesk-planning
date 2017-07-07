@@ -48,11 +48,7 @@ RelatedPlanningsComponent.propTypes = {
 
 const mapStateToProps = (state, ownProps) => ({
     plannings: ownProps.plannings.map((planning) => {
-        return {
-            ...planning,
-            _agendas: !planning.agendas ? [] : planning.agendas.map((agendaId) =>
-                selectors.getAgendas(state).find((agenda => agenda._id === agendaId))),
-        }}),
+        return { ...planning }}),
 })
 
 const mapDispatchToProps = (dispatch) => ({

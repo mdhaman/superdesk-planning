@@ -1,7 +1,7 @@
 import { hideModal } from './modal'
 import * as selectors from '../selectors'
 import { SubmissionError } from 'redux-form'
-import { cloneDeep, get, pick, unDefined } from 'lodash'
+import { cloneDeep, get, pick } from 'lodash'
 import { PRIVILEGES, ITEM_STATE, AGENDA } from '../constants'
 import { checkPermission, getErrorMessage } from '../utils'
 import { planning, showModal } from './index'
@@ -127,35 +127,6 @@ const fetchAgendaById = (_id) => (
 )
 
 /**
- * Action dispatcher that adds the supplied planning item to the agenda
- * @param {array} plannings - The planning item to add to the agenda
- * @param {object} agenda - The agenda to add the planning to
- * @return Promise
- */
-const _addPlanningsToAgenda = ({ plannings, agenda }) => (
-    (dispatch, getState, { api }) => {
-        if (!Array.isArray(plannings)) {
-            plannings = [plannings]
-        }
-        // clone agenda
-        agenda = cloneDeep(agenda)
-        const planningItems = [
-            // init with existing planning_items array if does exist
-            ...get(agenda, 'planning_items', []),
-            // add plannings ids to planning_items
-            ...plannings.map((p) => (p._id)),
-        ]
-        // update the agenda
-        return api('agenda').save(agenda, { planning_items: planningItems })
-        .then((agenda) => {
-            // replace the agenda in the store
-            dispatch(addOrReplaceAgenda(agenda))
-            return agenda
-        })
-    }
-)
-
-/**
  * Action dispatcher that adds the supplied planning item to the
  * currently selected agenda
  * @param {array} plannings - The planning item to add to the agenda
@@ -170,10 +141,7 @@ const _addToCurrentAgenda = (plannings) => (
         const currentAgenda = selectors.getCurrentAgenda(getState())
         if (!currentAgenda) throw Error('unable to find the current agenda')
         // add the planning to the agenda
-        return dispatch(addPlanningsToAgenda({
-            plannings: plannings,
-            agenda: currentAgenda,
-        }))
+        return dispatch(fetchSelectedAgendaPlannings())
         .then(() => {
             notify.success('The planning has been added to the agenda')
             return plannings
@@ -273,9 +241,7 @@ const _createPlanningFromEvent = (event) => (
         let error
         if (!currentAgenda) {
             error = 'No Agenda selected.'
-        } else if (currentAgenda.state === ITEM_STATE.SPIKED) {
-            error = 'Current Agenda is spiked.'
-        } else if (get(event, 'state', 'active') === ITEM_STATE.SPIKED) {
+        } else if (!currentAgenda.is_enabled) {
             error = 'Cannot create a Planning item from a spiked event!'
         }
 
@@ -291,7 +257,7 @@ const _createPlanningFromEvent = (event) => (
             headline: event.name,
             subject: event.subject,
             anpa_category: event.anpa_category,
-            agendas: [currentAgenda],
+            agendas: [currentAgenda._id],
         }))
     }
 )
@@ -305,9 +271,12 @@ const fetchSelectedAgendaPlannings = () => (
     (dispatch, getState) => {
         const agenda = selectors.getCurrentAgenda(getState())
         const agendaId = selectors.getCurrentAgendaId(getState())
+
+        if (!agendaId) return Promise.resolve()
+
         const params = {
             planningNotInAgenda: agendaId === AGENDA.FILTER.PLANNING_NOT_IN_AGENDA,
-            agendas: agenda ? [agenda._id] : null
+            agendas: agenda ? [agenda._id] : null,
         }
 
         return dispatch(planning.api.fetch(params))
@@ -342,17 +311,6 @@ const createPlanningFromEvent = checkPermission(
     _createPlanningFromEvent,
     PRIVILEGES.PLANNING_MANAGEMENT,
     'Unauthorised to create a new planning item!'
-)
-
-/**
- * Action Dispatcher to add a Planning Item to an Agenda
- * Also checks the permission if the user can do so
- * @return thunk function
- */
-const addPlanningsToAgenda = checkPermission(
-    _addPlanningsToAgenda,
-    PRIVILEGES.PLANNING_MANAGEMENT,
-    'Unauthorised to add a Planning Item to an Agenda'
 )
 
 /**
@@ -393,7 +351,6 @@ export {
     fetchAgendaById,
     selectAgenda,
     addToCurrentAgenda,
-    addPlanningsToAgenda,
     addEventToCurrentAgenda,
     askForAddEventToCurrentAgenda,
     fetchSelectedAgendaPlannings,

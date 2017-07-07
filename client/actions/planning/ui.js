@@ -80,14 +80,14 @@ const _save = (item) => (
  * @return Promise
  */
 const _saveAndReloadCurrentAgenda = (item) => (
-    (dispatch, getState, { notify }) => (
+    (dispatch, getState, { notify, $timeout }) => (
         dispatch(planning.api.saveAndReloadCurrentAgenda(item))
         .then((item) => {
             notify.success('The Planning item has been saved.')
             return Promise.resolve(item)
         }, (error) => {
-            notify.error(
-                getErrorMessage(error, 'Failed to save the Planning item!')
+            $timeout(
+                notify.error(getErrorMessage(error, 'Failed to save the Planning item!'))
             )
             return Promise.reject(error)
         })

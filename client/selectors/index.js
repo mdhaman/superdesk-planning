@@ -247,16 +247,18 @@ export const getEventsOrderedByDay = createSelector(
 
 /** Used for event details */
 export const getEventToBeDetailed = createSelector(
-    [getShowEventDetails, getEvents, getStoredPlannings],
-    (showEventDetails, events, storedPlannings) => {
+    [getShowEventDetails, getEvents, getStoredPlannings, getAgendas],
+    (showEventDetails, events, plannings, agendas) => {
         const event = events[showEventDetails]
         if (event) {
             return {
                 ...event,
-                _plannings: Object.keys(storedPlannings).filter((pKey) => (
-                    storedPlannings[pKey].event_item === showEventDetails
+                _plannings: Object.keys(plannings).filter((pKey) => (
+                    plannings[pKey].event_item === showEventDetails
                 )).map((key) => ({
-                    ...storedPlannings[key]
+                    ...plannings[key],
+                    _agendas: !plannings[key].agendas ? [] :
+                        plannings[key].agendas.map((id) => agendas.find((agenda => agenda._id === id))),
                 })),
             }
         }

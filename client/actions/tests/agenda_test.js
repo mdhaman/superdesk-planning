@@ -1,12 +1,11 @@
 import sinon from 'sinon'
 import * as actions from '../agenda'
 import { PRIVILEGES } from '../../constants'
-import { registerNotifications } from '../../controllers/PlanningController'
-import { createTestStore } from '../../utils'
+import { createTestStore, registerNotifications } from '../../utils'
 import { cloneDeep } from 'lodash'
 import * as selectors from '../../selectors'
 
-describe('agenda', () => {
+fdescribe('agenda', () => {
     describe('actions', () => {
         let agendas
         let plannings
@@ -48,13 +47,12 @@ describe('agenda', () => {
                 {
                     _id: 'a1',
                     name: 'TestAgenda',
-                    planning_type: 'agenda',
+                    is_enabled: true,
                 },
                 {
                     _id: 'a2',
                     name: 'TestAgenda2',
-                    planning_type: 'agenda',
-                    planning_items: [],
+                    is_enabled: true,
                 },
             ]
 
@@ -121,13 +119,6 @@ describe('agenda', () => {
                         },
                     }])
 
-                    expect(dispatch.args[4]).toEqual([{
-                        type: 'SELECT_AGENDA',
-                        payload: 'a3',
-                    }])
-
-                    expect(dispatch.args[7]).toEqual([{ type: 'REQUEST_PLANNINGS' }])
-
                     done()
                 })
                 .catch((error) => {
@@ -147,14 +138,14 @@ describe('agenda', () => {
                 .catch(() => {
                     expect($timeout.callCount).toBe(1)
                     expect(notify.error.args[0][0]).toBe(
-                        'Unauthorised to create or update an agenda'
+                        'Unauthorised to create or update an agenda!'
                     )
                     expect(dispatch.args[0]).toEqual([{
                         type: PRIVILEGES.ACTIONS.ACCESS_DENIED,
                         payload: {
                             action: '_createOrUpdateAgenda',
                             permission: PRIVILEGES.AGENDA_MANAGEMENT,
-                            errorMessage: 'Unauthorised to create or update an agenda',
+                            errorMessage: 'Unauthorised to create or update an agenda!',
                             args: [item],
                         },
                     }])
@@ -340,7 +331,7 @@ describe('agenda', () => {
                     $timeout,
                 })
                 .then(() => {
-                    expect(apiSpy.save.callCount).toBe(2)
+                    expect(apiSpy.save.callCount).toBe(1)
                     expect(apiSpy.save.args[0]).toEqual([
                         {},
                         {
@@ -349,6 +340,7 @@ describe('agenda', () => {
                             headline: events[0].name,
                             subject: events[0].subject,
                             anpa_category: events[0].anpa_category,
+                            agendas: ['a2']
                         },
                     ])
 
@@ -398,19 +390,6 @@ describe('agenda', () => {
                 })
                 .catch(() => {
                     expect(notify.error.args[0]).toEqual(['You have to select an agenda first'])
-                    done()
-                })
-            })
-
-            it('addEventToCurrentAgenda raises error if current Agenda is spiked', (done) => {
-                agendas[1].state = 'spiked'
-                const action = actions.addEventToCurrentAgenda(events[0])
-                return action(dispatch, getState, {
-                    notify,
-                    $timeout,
-                })
-                .catch(() => {
-                    expect(notify.error.args[0]).toEqual(['Current Agenda is spiked.'])
                     done()
                 })
             })
@@ -602,54 +581,6 @@ describe('agenda', () => {
 
                 done()
             }, 0)
-        })
-
-        it('`agenda:spiked` updates the Agenda in the store', (done) => {
-            newAgenda._id = '1'
-            newAgenda.name = 'agenda'
-            newAgenda.state = 'spiked'
-            $rootScope.$broadcast('agenda:spiked', { item: '1' })
-
-            setTimeout(() => {
-                expect(spyGetById.callCount).toBe(1)
-                expect(spyGetById.args[0]).toEqual([
-                    'agenda',
-                    '1',
-                ])
-
-                expect(selectors.getAgendas(store.getState())).toEqual([
-                    {
-                        _id: '1',
-                        name: 'agenda',
-                        state: 'spiked',
-                    },
-                ])
-                done()
-            })
-        })
-
-        it('`agenda:unspiked` updates the Agenda in the store', (done) => {
-            newAgenda._id = '1'
-            newAgenda.name = 'agenda'
-            newAgenda.state = 'active'
-            $rootScope.$broadcast('agenda:unspiked', { item: '1' })
-
-            setTimeout(() => {
-                expect(spyGetById.callCount).toBe(1)
-                expect(spyGetById.args[0]).toEqual([
-                    'agenda',
-                    '1',
-                ])
-
-                expect(selectors.getAgendas(store.getState())).toEqual([
-                    {
-                        _id: '1',
-                        name: 'agenda',
-                        state: 'active',
-                    },
-                ])
-                done()
-            })
         })
     })
 })
