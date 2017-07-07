@@ -89,7 +89,7 @@ class PlanningPanel extends React.Component {
                                 <div className="Planning-panel__empty-message">
                                     Loading
                                 </div>
-                            || !currentAgenda! &&
+                            || !currentAgendaId &&
                                 <div className="Planning-panel__empty-message">
                                     <div className="panel-info">
                                         <div className="panel-info__icon">
@@ -98,9 +98,6 @@ class PlanningPanel extends React.Component {
                                         <h3 className="panel-info__heading">Choose an agenda</h3>
                                         <p className="panel-info__description">...from the drop-down list above.</p>
                                     </div>
-                            || !currentAgendaId &&
-                                <div className="Planning-panel__empty-message">
-                                    Choose an agenda from the drop-down list above.
                                 </div>
                             || (planningList && planningList.length < 1 && currentAgenda) &&
                                 <div className="Planning-panel__empty-message">
