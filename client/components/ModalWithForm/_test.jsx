@@ -3,10 +3,17 @@ import { mount } from 'enzyme'
 import { ModalWithForm, CreateEditAgendaForm } from '../index'
 import { createTestStore } from '../../utils'
 import { Provider } from 'react-redux'
+import sinon from 'sinon'
+
 
 describe('<ModalWithForm />', () => {
     it('open the modal', () => {
-        let store = createTestStore()
+        let initialState = {
+            users: []
+        }
+
+        let store = createTestStore({initialState: initialState})
+
         const wrapper = mount(
             <Provider store={store}>
                 <ModalWithForm

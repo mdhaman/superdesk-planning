@@ -145,24 +145,6 @@ describe('planning', () => {
                 expect(wrapper.find('button[type="reset"]').length).toBe(0)
             })
 
-            it('displays the `agenda spiked` badge', () => {
-                const wrapper = shallow(
-                    <EditPlanningPanel
-                        closePlanningEditor={sinon.spy()}
-                        agendaSpiked={true}
-                        pristine={false}
-                        submitting={false}/>
-                )
-                const badge = wrapper.find('.AgendaSpiked').first()
-                const saveButton = wrapper.find('button[type="submit"]')
-
-                // Make sure the `save` button is not shown
-                expect(saveButton.length).toBe(0)
-
-                // Make sure the `agenda spiked` badge is shown
-                expect(badge.text()).toBe('agenda spiked')
-            })
-
             it('displays the `planning spiked` badge', () => {
                 const planning = {
                     slugline: 'Plan1',

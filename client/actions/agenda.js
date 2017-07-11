@@ -127,29 +127,6 @@ const fetchAgendaById = (_id) => (
 )
 
 /**
- * Action dispatcher that adds the supplied planning item to the
- * currently selected agenda
- * @param {array} plannings - The planning item to add to the agenda
- * @return Promise
- */
-const _addToCurrentAgenda = (plannings) => (
-    (dispatch, getState, { notify }) => {
-        if (!Array.isArray(plannings)) {
-            plannings = [plannings]
-        }
-
-        const currentAgenda = selectors.getCurrentAgenda(getState())
-        if (!currentAgenda) throw Error('unable to find the current agenda')
-        // add the planning to the agenda
-        return dispatch(fetchSelectedAgendaPlannings())
-        .then(() => {
-            notify.success('The planning has been added to the agenda')
-            return plannings
-        })
-    }
-)
-
-/**
  * Action factory that ask for creating a planning item from the supplied event,
  * then calls addEventToCurrentAgenda
  * @param {array} events - The events needed to create the planning items
@@ -242,6 +219,8 @@ const _createPlanningFromEvent = (event) => (
         if (!currentAgenda) {
             error = 'No Agenda selected.'
         } else if (!currentAgenda.is_enabled) {
+            error = 'Cannot create a Planning item from a disabled agenda!'
+        } else if (event.state === ITEM_STATE.SPIKED) {
             error = 'Cannot create a Planning item from a spiked event!'
         }
 
@@ -278,7 +257,6 @@ const fetchSelectedAgendaPlannings = () => (
             planningNotInAgenda: agendaId === AGENDA.FILTER.PLANNING_NOT_IN_AGENDA,
             agendas: agenda ? [agenda._id] : null,
         }
-
         return dispatch(planning.api.fetch(params))
     }
 )
@@ -313,17 +291,6 @@ const createPlanningFromEvent = checkPermission(
     'Unauthorised to create a new planning item!'
 )
 
-/**
- * Action Dispatcher to add a Planning Item to the current Agenda
- * Also checks the permission if the user can do so
- * @return thunk function
- */
-const addToCurrentAgenda = checkPermission(
-    _addToCurrentAgenda,
-    PRIVILEGES.PLANNING_MANAGEMENT,
-    'Unauthorised to add a Planning Item to an Agenda'
-)
-
 // WebSocket Notifications
 /**
  * Action Event when a new Agenda is created or updated
@@ -350,7 +317,6 @@ export {
     fetchAgendas,
     fetchAgendaById,
     selectAgenda,
-    addToCurrentAgenda,
     addEventToCurrentAgenda,
     askForAddEventToCurrentAgenda,
     fetchSelectedAgendaPlannings,

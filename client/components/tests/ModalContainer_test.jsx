@@ -6,11 +6,12 @@ import { Provider } from 'react-redux'
 import * as actions from '../../actions'
 import { createTestStore } from '../../utils'
 
-describe('<ModalsContainer />', () => {
+fdescribe('<ModalsContainer />', () => {
     it('open a confirmation modal', () => {
         const agenda = {
             _id: 'agenda1',
-            planning_items: ['planning1'],
+            name: 'agenda',
+            is_enabled: true,
         }
         const initialState = {
             planning: {

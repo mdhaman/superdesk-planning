@@ -121,13 +121,18 @@ export const getTestActionStore = () => {
                 {
                     _id: 'a1',
                     name: 'TestAgenda',
-                    planning_type: 'agenda',
+                    is_enabled: true,
                 },
                 {
                     _id: 'a2',
                     name: 'TestAgenda2',
-                    planning_type: 'agenda',
+                    is_enabled: true,
                 },
+                {
+                    _id: 'a3',
+                    name: 'TestAgenda3',
+                    is_enabled: false,
+                }
             ],
             coverages: [
                 {

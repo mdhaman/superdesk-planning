@@ -28,6 +28,7 @@ describe('events', () => {
                 _id: '0',
                 slugline: 'slug',
                 original_creator: { 'display_name': 'ABC' },
+                _agendas: [ {_id: '1', name: 'agenda', is_enabled: true} ]
             }],
         }
 
@@ -39,9 +40,8 @@ describe('events', () => {
                         <SpikeEvent eventDetail={event} />
                     </Provider>
                 )
-
-                const relPlanningNode = wrapper.find('.related-plannings').childAt(0).childAt(1)
-                expect(relPlanningNode.text()).toBe('slug created by ABC in  agenda')
+                const relPlanningNode = wrapper.find('.related-plannings').childAt(0)
+                expect(relPlanningNode.text()).toBe(' slug created by ABC in agenda')
             })
         })
     })

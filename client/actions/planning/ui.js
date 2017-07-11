@@ -80,15 +80,13 @@ const _save = (item) => (
  * @return Promise
  */
 const _saveAndReloadCurrentAgenda = (item) => (
-    (dispatch, getState, { notify, $timeout }) => (
+    (dispatch, getState, { notify }) => (
         dispatch(planning.api.saveAndReloadCurrentAgenda(item))
         .then((item) => {
             notify.success('The Planning item has been saved.')
             return Promise.resolve(item)
         }, (error) => {
-            $timeout(
-                notify.error(getErrorMessage(error, 'Failed to save the Planning item!'))
-            )
+            notify.error(getErrorMessage(error, 'Failed to save the Planning item!'))
             return Promise.reject(error)
         })
     )
@@ -192,6 +190,7 @@ const previewPlanningAndOpenAgenda = (pid, agenda) => (
         if (agenda && agenda._id !== selectors.getCurrentAgendaId(getState())) {
             dispatch(actions.selectAgenda(agenda._id))
         }
+
         // open the planning details
         return dispatch(self.preview(pid))
     }

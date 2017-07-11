@@ -448,7 +448,9 @@ const saveAndReloadCurrentAgenda = (item) => (
                 // agendas planning items
                 if (isEqual(originalItem, {})) {
                     return dispatch(actions.fetchSelectedAgendaPlannings())
-                        .then(() => (Promise.resolve(item)), (error) => (Promise.reject(error)))
+                        .then(() => {
+                        return Promise.resolve(item)
+                    }, (error) => (Promise.reject(error)))
                 }
 
                 return Promise.resolve(item)

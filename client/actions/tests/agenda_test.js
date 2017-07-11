@@ -5,7 +5,7 @@ import { createTestStore, registerNotifications } from '../../utils'
 import { cloneDeep } from 'lodash'
 import * as selectors from '../../selectors'
 
-fdescribe('agenda', () => {
+describe('agenda', () => {
     describe('actions', () => {
         let agendas
         let plannings
@@ -266,62 +266,6 @@ fdescribe('agenda', () => {
             })
         })
 
-        describe('addToCurrentAgenda', () => {
-            it('addToCurrentAgenda executes dispatches', (done) => {
-                initialState.privileges.planning_planning_management = 1
-
-                const action = actions.addToCurrentAgenda([plannings[0]])
-                return action(dispatch, getState, {
-                    notify,
-                    $timeout,
-                })
-                .then((plannings) => {
-                    expect(plannings).toEqual([plannings[0]])
-                    // Cannot check dispatch(addPlanningsToAgenda()) using a spy on dispatch
-                    // As addPlanningsToAgenda is a thunk function
-
-                    expect(notify.success.args[0]).toEqual([
-                        'The planning has been added to the agenda',
-                    ])
-
-                    done()
-                })
-                .catch((error) => {
-                    expect(error).toBe(null)
-                    expect(error.stack).toBe(null)
-                    done()
-                })
-            })
-
-            it('addToCurrentAgenda raises ACCESS_DENIED without permission', (done) => {
-                initialState.privileges.planning_planning_management = 0
-
-                const action = actions.addToCurrentAgenda(plannings[0])
-                return action(dispatch, getState, {
-                    notify,
-                    $timeout,
-                })
-                .catch(() => {
-                    expect($timeout.callCount).toBe(1)
-                    expect(notify.error.args[0][0]).toBe(
-                        'Unauthorised to add a Planning Item to an Agenda'
-                    )
-                    expect(dispatch.args[0]).toEqual([{
-                        type: PRIVILEGES.ACTIONS.ACCESS_DENIED,
-                        payload: {
-                            action: '_addToCurrentAgenda',
-                            permission: PRIVILEGES.PLANNING_MANAGEMENT,
-                            errorMessage: 'Unauthorised to add a Planning Item to an Agenda',
-                            args: [plannings[0]],
-                        },
-                    }])
-                    expect(dispatch.callCount).toBe(1)
-
-                    done()
-                })
-            })
-        })
-
         describe('addEventToCurrentAgenda', () => {
             it('addEventToCurrentAgenda executes dispatches', (done) => {
                 apiSpy.query = sinon.spy(() => (Promise.resolve({ _items: plannings })))
@@ -408,6 +352,21 @@ fdescribe('agenda', () => {
                     done()
                 })
             })
+
+            it('addEventToCurrentAgenda raises error if the agenda is disabled', (done) => {
+                agendas[1].is_enabled = false
+                const action = actions.addEventToCurrentAgenda(events[0])
+                return action(dispatch, getState, {
+                    notify,
+                    $timeout,
+                })
+                .catch(() => {
+                    expect(notify.error.args[0]).toEqual([
+                        'Cannot create a Planning item from a disabled agenda!',
+                    ])
+                    done()
+                })
+            })
         })
 
         it('fetchSelectedAgendaPlannings', (done) => {
@@ -431,77 +390,77 @@ fdescribe('agenda', () => {
             })
         })
 
-        describe('addPlanningsToAgenda', () => {
-            it('addPlanningsToAgenda saves and executes dispatches', (done) => {
-                const action = actions.addPlanningsToAgenda({
-                    plannings: plannings[0],
-                    agenda: agendas[0],
-                })
-                initialState.privileges.planning_planning_management = 1
-                return action(dispatch, getState, {
-                    notify,
-                    $timeout,
-                    api,
-                })
-                .then((agenda) => {
-                    let newAgenda = {
-                        ...agendas[0],
-                        planning_items: ['p1'],
-                    }
-                    expect(apiSpy.save.args[0]).toEqual([
-                        agendas[0],
-                        { planning_items: ['p1'] },
-                    ])
-                    expect(agenda).toEqual(newAgenda)
-
-                    expect(dispatch.args[1]).toEqual([{
-                        type: 'ADD_OR_REPLACE_AGENDA',
-                        payload: newAgenda,
-                    }])
-
-                    done()
-                })
-                .catch((error) => {
-                    expect(error).toBe(null)
-                    expect(error.stack).toBe(null)
-                    done()
-                })
-            })
-
-            it('addPlanningsToAgenda raises ACCESS_DENIED without permission', (done) => {
-                const action = actions.addPlanningsToAgenda({
-                    plannings: plannings[0],
-                    agenda: agendas[0],
-                })
-                initialState.privileges.planning_planning_management = 0
-                return action(dispatch, getState, {
-                    notify,
-                    $timeout,
-                    api,
-                })
-                .catch(() => {
-                    expect($timeout.callCount).toBe(1)
-                    expect(notify.error.args[0][0]).toBe(
-                        'Unauthorised to add a Planning Item to an Agenda'
-                    )
-                    expect(dispatch.args[0]).toEqual([{
-                        type: PRIVILEGES.ACTIONS.ACCESS_DENIED,
-                        payload: {
-                            action: '_addPlanningsToAgenda',
-                            permission: PRIVILEGES.PLANNING_MANAGEMENT,
-                            errorMessage: 'Unauthorised to add a Planning Item to an Agenda',
-                            args: [{
-                                plannings: plannings[0],
-                                agenda: agendas[0],
-                            }],
-                        },
-                    }])
-                    expect(dispatch.callCount).toBe(1)
-
-                    done()
-                })
-            })
-        })
+        // describe('addPlanningsToAgenda', () => {
+        //     it('addPlanningsToAgenda saves and executes dispatches', (done) => {
+        //         const action = actions.addPlanningsToAgenda({
+        //             plannings: plannings[0],
+        //             agenda: agendas[0],
+        //         })
+        //         initialState.privileges.planning_planning_management = 1
+        //         return action(dispatch, getState, {
+        //             notify,
+        //             $timeout,
+        //             api,
+        //         })
+        //         .then((agenda) => {
+        //             let newAgenda = {
+        //                 ...agendas[0],
+        //                 planning_items: ['p1'],
+        //             }
+        //             expect(apiSpy.save.args[0]).toEqual([
+        //                 agendas[0],
+        //                 { planning_items: ['p1'] },
+        //             ])
+        //             expect(agenda).toEqual(newAgenda)
+        //
+        //             expect(dispatch.args[1]).toEqual([{
+        //                 type: 'ADD_OR_REPLACE_AGENDA',
+        //                 payload: newAgenda,
+        //             }])
+        //
+        //             done()
+        //         })
+        //         .catch((error) => {
+        //             expect(error).toBe(null)
+        //             expect(error.stack).toBe(null)
+        //             done()
+        //         })
+        //     })
+        //
+        //     it('addPlanningsToAgenda raises ACCESS_DENIED without permission', (done) => {
+        //         const action = actions.addPlanningsToAgenda({
+        //             plannings: plannings[0],
+        //             agenda: agendas[0],
+        //         })
+        //         initialState.privileges.planning_planning_management = 0
+        //         return action(dispatch, getState, {
+        //             notify,
+        //             $timeout,
+        //             api,
+        //         })
+        //         .catch(() => {
+        //             expect($timeout.callCount).toBe(1)
+        //             expect(notify.error.args[0][0]).toBe(
+        //                 'Unauthorised to add a Planning Item to an Agenda'
+        //             )
+        //             expect(dispatch.args[0]).toEqual([{
+        //                 type: PRIVILEGES.ACTIONS.ACCESS_DENIED,
+        //                 payload: {
+        //                     action: '_addPlanningsToAgenda',
+        //                     permission: PRIVILEGES.PLANNING_MANAGEMENT,
+        //                     errorMessage: 'Unauthorised to add a Planning Item to an Agenda',
+        //                     args: [{
+        //                         plannings: plannings[0],
+        //                         agenda: agendas[0],
+        //                     }],
+        //                 },
+        //             }])
+        //             expect(dispatch.callCount).toBe(1)
+        //
+        //             done()
+        //         })
+        //     })
+        // })
     })
 
     describe('websocket', () => {

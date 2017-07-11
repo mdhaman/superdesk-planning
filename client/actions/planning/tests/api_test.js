@@ -676,6 +676,7 @@ describe('actions.planning.api', () => {
 
             sinon.stub(planningApi, 'save').callsFake(() => (Promise.resolve({
                 ...newItem,
+                agendas: ['a1'],
                 _id: 'p3',
             })))
 
@@ -683,6 +684,7 @@ describe('actions.planning.api', () => {
             .then((item) => {
                 expect(item).toEqual({
                     ...newItem,
+                    agendas: ['a1'],
                     _id: 'p3',
                 })
 
@@ -691,11 +693,11 @@ describe('actions.planning.api', () => {
                 expect(planningApi.save.callCount).toBe(1)
                 expect(planningApi.save.args[0]).toEqual([newItem, {}])
 
-                expect(services.api('agenda').save.callCount).toBe(1)
-                expect(services.api('agenda').save.args[0]).toEqual([
-                    data.agendas[0],
-                    { planning_items: ['p3'] },
-                ])
+                expect(planningApi.fetch.callCount).toBe(1)
+                expect(planningApi.fetch.args[0]).toEqual([{
+                    planningNotInAgenda: false,
+                    agendas: ['a1'],
+                }])
 
                 done()
             })
@@ -755,9 +757,9 @@ describe('actions.planning.api', () => {
             })
         })
 
-        it('returns Promise.reject if no current Agenda is spiked', (done) => {
-            data.agendas[0].state = 'spiked'
-            errorMessage.data._message = 'Cannot create a new planning item in a spiked Agenda.'
+        it('returns Promise.reject if no current Agenda is disabled', (done) => {
+            data.agendas[0].is_enabled = false
+            errorMessage.data._message = 'Cannot create a new planning item in a disabled Agenda.'
 
             return store.test(
                 done,

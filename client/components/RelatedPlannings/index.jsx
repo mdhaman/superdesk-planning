@@ -19,17 +19,18 @@ export const RelatedPlanningsComponent = ({ plannings, openPlanningItem, openPla
                 {state && state === 'spiked' &&
                     <span className="label label--alert">spiked</span>
                 }
-                {slugline} Created by { display_name } in {
+                {slugline} created by { display_name } in {
                     _agendas.map((_agenda) => (
-                        _agenda &&
-                            <span>
-                                <a onClick={ openPlanningItem ? openPlanningClick.bind(null, _id, _agenda) : null}>
-                                    {
-                                        _agenda.is_enabled ? `${_agenda.name}` : `${_agenda.name} - [Disabled]`
-                                    }
-                                </a>
-                            ,&nbsp;</span>
-                    ))
+                        _agenda && <span key={_agenda._id}>
+                            <a onClick={ openPlanningItem ? openPlanningClick.bind(null, _id, _agenda) : null}>
+                                {
+                                    _agenda.is_enabled ? `${_agenda.name}` : `${_agenda.name} - [Disabled]`
+                                }
+                            </a>
+                        </span>
+                    )).reduce((accu, elem) => {
+                        return accu === null ? [elem] : [accu, ', ', elem]
+                    }, null)
                 }
                 {anpa_category && anpa_category.length && (
                     <span>&nbsp;[{anpa_category.map((c) => c.name).join(', ')}]</span>
