@@ -1,8 +1,8 @@
-import { get } from 'lodash'
+import { get, includes, isEmpty } from 'lodash'
 import planning from './index'
 import { getErrorMessage } from '../../utils'
 import * as selectors from '../../selectors'
-import { PLANNING } from '../../constants'
+import { PLANNING, AGENDA } from '../../constants'
 import { showModal } from '../index'
 
 /**
@@ -11,25 +11,43 @@ import { showModal } from '../index'
  * @param {object} data - Planning and User IDs
  */
 const onPlanningCreated = (_e, data) => (
-    (dispatch, getState, { notify }) => {
+    (dispatch) => {
         if (get(data, 'item')) {
-            return dispatch(planning.api.fetchPlanningById(data.item, true))
-            .then(
-                (item) => {
-                    dispatch(planning.ui.addToList([item._id]))
-                    return Promise.resolve(item)
-                },
-
-                (error) => {
-                    notify.error(
-                        getErrorMessage(error, 'Failed to get a new Planning Item!')
-                    )
-                    return Promise.reject(error)
+            return dispatch(self.canRefetchPlanning(data))
+            .then((result) => {
+                if (!result) {
+                    return Promise.resolve()
                 }
-            )
+
+                return dispatch(planning.ui.refetch())
+            })
         }
 
         return Promise.resolve()
+    }
+)
+
+const canRefetchPlanning = (data) => (
+    (dispatch, getState) => {
+        const session = selectors.getSessionDetails(getState())
+
+        let updatePlanning = false
+
+        if (get(session, 'identity._id') === get(data, 'user') &&
+            get(session, 'sessionId') === get(data, 'session')) {
+            return Promise.resolve(updatePlanning)
+        }
+
+        const agendaId = selectors.getCurrentAgendaId(getState())
+        if (agendaId === AGENDA.FILTER.NO_AGENDA_ASSIGNED &&
+            isEmpty(get(data, 'added_agendas', []))) {
+            updatePlanning = true
+        } else if (agendaId && (includes(get(data, 'added_agendas', []), agendaId) ||
+            includes(get(data, 'removed_agendas', []), agendaId))) {
+            updatePlanning = true
+        }
+
+        return Promise.resolve(updatePlanning)
     }
 )
 
@@ -95,7 +113,7 @@ const onCoverageDeleted = (_e, data) => (
  * @param {object} _e - Event object
  * @param {object} data - Planning and User IDs
  */
-const onPlanningUpdated = (_e, data) => (
+const onPlanningUpdated = (_e, data, refetch=true) => (
     (dispatch, getState, { notify }) => {
         if (get(data, 'item')) {
             const storedPlans = selectors.getStoredPlannings(getState())
@@ -104,6 +122,17 @@ const onPlanningUpdated = (_e, data) => (
             // If we haven't got this planning loaded,
             // no need to respond to this event
             if (plan === null) return Promise.resolve()
+
+            if (refetch) {
+                return dispatch(self.canRefetchPlanning(data))
+                .then((result) => {
+                    if (!result) {
+                        return Promise.resolve()
+                    }
+
+                    return dispatch(planning.ui.refetch())
+                })
+            }
 
             // Otherwise send an Action to update the store
             return dispatch(planning.api.loadPlanningById(data.item, true))
@@ -164,12 +193,16 @@ const onPlanningUnlocked = (_e, data) => (
     }
 )
 
+const onPlanningUpdateWithoutRefetch = (_e, data) => (self.onPlanningUpdated(_e, data, false))
+
 const self = {
     onPlanningCreated,
     onCoverageCreatedOrUpdated,
     onCoverageDeleted,
     onPlanningUpdated,
     onPlanningUnlocked,
+    canRefetchPlanning,
+    onPlanningUpdateWithoutRefetch,
 }
 
 // Map of notification name and Action Event to execute
@@ -179,9 +212,9 @@ self.events = {
     'coverage:updated': () => (self.onCoverageCreatedOrUpdated),
     'coverage:deleted': () => (self.onCoverageDeleted),
     'planning:updated': () => (self.onPlanningUpdated),
-    'planning:spiked': () => (self.onPlanningUpdated),
-    'planning:unspiked': () => (self.onPlanningUpdated),
-    'planning:lock': () => (self.onPlanningUpdated),
+    'planning:spiked': () => (self.onPlanningUpdateWithoutRefetch),
+    'planning:unspiked': () => (self.onPlanningUpdateWithoutRefetch),
+    'planning:lock': () => (self.onPlanningUpdateWithoutRefetch),
     'planning:unlock': () => (self.onPlanningUnlocked),
 }
 

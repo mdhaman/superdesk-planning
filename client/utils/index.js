@@ -311,3 +311,31 @@ export const getLockedUser = (item, users) => (
 
 export const getItemState = (item) => (get(item, 'state'))
 
+/**
+ * Get the array of coverage content type and color base on the scheduled date
+ * @param {Array} coverages
+ * @returns {Array}
+ */
+export const mapCoverageByDate = (coverages) => (
+    coverages.map((c) => {
+        let coverage = {
+            coverageType: c.planning.g2_content_type || '',
+            iconColor: '',
+        }
+
+        if (get(c, 'planning.scheduled')) {
+            const isAfter = moment(get(c, 'planning.scheduled')).isAfter(moment())
+            coverage.iconColor = isAfter ? ' icon--green' : 'icon--red'
+        }
+
+        return coverage
+    })
+)
+
+/**
+ * Get the timezone offset
+ * @param {Array} coverages
+ * @returns {Array}
+ */
+export const getTimeZoneOffset = () => (moment().format('Z'))
+
