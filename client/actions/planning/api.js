@@ -85,6 +85,8 @@ const query = ({
     advancedSearch = {},
     onlyFuture,
     fulltext,
+    maxResults = 25,
+    adHocPlanning = false,
 }) => (
     (dispatch, getState, {api}) => {
         let query = {};
@@ -154,6 +156,12 @@ const query = ({
 
                     must.push(queryString);
                 },
+            },
+            {
+                condition: () => (adHocPlanning),
+                do: () => {
+                    mustNot.push({exists: {field: 'event_item'}});
+                }
             },
             {
                 condition: () => (!get(advancedSearch, 'dates') && onlyFuture),
@@ -358,6 +366,7 @@ const query = ({
         // Query the API
         return api('planning').query({
             page: page,
+            max_results: maxResults,
             source: JSON.stringify({
                 query,
                 sort,

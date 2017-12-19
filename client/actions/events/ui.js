@@ -32,14 +32,14 @@ const fetchEvents = (params = {
         });
 
         return dispatch(eventsApi.query(params))
-            .then((data) => {
-                dispatch(eventsApi.receiveEvents(data._items));
-                dispatch(self.setEventsList(data._items.map((e) => e._id)));
+            .then((items) => {
+                dispatch(eventsApi.receiveEvents(items));
+                dispatch(self.setEventsList(items.map((e) => e._id)));
                 // update the url (deep linking)
                 $timeout(() => (
                     $location.search('searchEvent', JSON.stringify(params))
                 ), 0, false);
-                return data;
+                return items;
             });
     }
 );
@@ -528,7 +528,7 @@ const saveWithConfirmation = (event, save = true, publish = false) => (
                     modalProps: {
                         eventDetail: {
                             ...event,
-                            _recurring: get(relatedEvents, '_items', [event]),
+                            _recurring: relatedEvents || [event],
                             _publish: publish,
                             _save: save,
                             _events: [],

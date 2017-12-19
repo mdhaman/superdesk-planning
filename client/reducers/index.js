@@ -11,6 +11,8 @@ import session from './session';
 import workspace from './workspace';
 import templates from './templates';
 import main from './main';
+import autosave from './autosave';
+import eventsAndPlanning from './eventsandplanning';
 
 const returnState = (state) => state || {};
 
@@ -27,6 +29,9 @@ const planningApp = combineReducers({
     workspace: workspace,
     templates: templates,
     main: main,
+    autosave: autosave,
+    eventsAndPlanning: eventsAndPlanning,
+
 
     // The following doesn't require reducers as they are loaded using sdPlanningService
     config: returnState,

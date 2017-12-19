@@ -16,11 +16,13 @@ import {
     isItemPostponed,
     getDateTimeString,
     isEmptyActions,
+    planningUtils,
 } from './index';
 import moment from 'moment';
 import RRule from 'rrule';
-import {get, map, isNil} from 'lodash';
-import {EventUpdateMethods} from '../components/Events';
+import {get, map, isNil, sortBy, keyBy, uniq} from 'lodash';
+import {EventUpdateMethods} from '../components/fields';
+
 
 /**
  * Helper function to determine if the starting and ending dates
@@ -391,6 +393,77 @@ const getEventActions = (item, session, privileges, lockedItems, callBacks) => {
     );
 };
 
+/*
+ * Groups the events by date
+ */
+const getEventsByDate = (events) => {
+    if (!events) return [];
+    // check if search exists
+    // order by date
+    let sortedEvents = events.sort((a, b) => a.dates.start - b.dates.start);
+    const days = {};
+
+    function addEventToDate(event, date) {
+        let eventDate = date || event.dates.start;
+
+        eventDate = eventDate.format('YYYY-MM-DD');
+        if (!days[eventDate]) {
+            days[eventDate] = [];
+        }
+
+        days[eventDate].push(event);
+    }
+
+    sortedEvents.forEach((event) => {
+        // compute the number of days of the event
+        if (!event.dates.start.isSame(event.dates.end, 'day')) {
+            let deltaDays = Math.max(event.dates.end.diff(event.dates.start, 'days'), 1);
+            // if the event happens during more that one day, add it to every day
+            // add the event to the other days
+
+            for (let i = 1; i <= deltaDays; i++) {
+                //  clone the date
+                const newDate = moment(event.dates.start);
+
+                newDate.add(i, 'days');
+                addEventToDate(event, newDate);
+            }
+        }
+
+        // add event to its initial starting date
+        addEventToDate(event);
+    });
+
+    let sortable = [];
+
+    for (let day in days) sortable.push({
+        date: day,
+        events: days[day],
+    });
+    return sortBy(sortable, [(e) => (e.date)]);
+};
+
+/*
+ * Groups the events and planning by date
+ */
+const getEventsPlanningByDate = (data) => {
+    const eventsByDate = keyBy(self.getEventsByDate(get(data, 'events', [])), 'date');
+    const planningByDate = keyBy(planningUtils.getPlanningByDate(get(data, 'planning', []), []), 'date');
+    const days = uniq(Object.keys(eventsByDate).concat(Object.keys(planningByDate)));
+
+    let sortable = [];
+
+    days.forEach((day) => {
+        sortable.push({
+            date: day,
+            events: get(eventsByDate, `${day}.events`, [])
+                .map((e) => ({_id: e._id, _type: e._type}))
+                .concat(get(planningByDate, `${day}.events`, []).map((e) => ({_id: e._id, _type: e._type})))
+        });
+    });
+    return sortBy(sortable, [(e) => (e.date)]);
+};
+
 // eslint-disable-next-line consistent-this
 const self = {
     isEventAllDay,
@@ -418,6 +491,8 @@ const self = {
     isEventRecurring,
     getDateStringForEvent,
     getEventActions,
+    getEventsByDate,
+    getEventsPlanningByDate,
 };
 
 export default self;

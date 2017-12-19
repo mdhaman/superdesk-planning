@@ -47,6 +47,7 @@ const deselectAllTheEventList = () => (
     {type: EVENTS.ACTIONS.DESELECT_ALL_EVENT}
 );
 
+
 /**
  * Action Dispatcher to create a duplicate of the passed event
  * This action is private to this module only.
@@ -80,9 +81,9 @@ function loadMoreEvents() {
             payload: params,
         });
         return dispatch(eventsApi.query(params))
-            .then((data) => {
-                dispatch(eventsApi.receiveEvents(data._items));
-                dispatch(addToEventsList(data._items.map((e) => e._id)));
+            .then((items) => {
+                dispatch(eventsApi.receiveEvents(items));
+                dispatch(addToEventsList(items.map((e) => e._id)));
             });
     };
 }
@@ -155,15 +156,15 @@ const onRecurringEventCreated = (_e, data) => (
             // until we receive the new events or an error occurs
             return dispatch(retryDispatch(
                 eventsApi.query({recurrenceId: data.item}),
-                (events) => get(events, '_items.length', 0) > 0,
+                (events) => get(events, 'length', 0) > 0,
                 5,
                 1000
             ))
             // Once we know our Recurring Events can be received from Elasticsearch,
             // go ahead and refresh the current list of events
-                .then((data) => {
+                .then((items) => {
                     dispatch(eventsUi.refetchEvents());
-                    return Promise.resolve(data._items);
+                    return Promise.resolve(items);
                 }, (error) => {
                     notify.error(getErrorMessage(
                         error,

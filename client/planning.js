@@ -98,6 +98,7 @@ class PlanningApp extends React.Component {
             timeFormat: this.props.timeFormat,
             session: this.props.session,
             privileges: this.props.privileges,
+            activeFilter: this.props.activeFilter,
             [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]:
                 this.props[EVENTS.ITEM_ACTIONS.DUPLICATE.actionName],
             [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]:
@@ -120,6 +121,8 @@ class PlanningApp extends React.Component {
                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
             [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
+            showRelatedPlannings: this.props.showRelatedPlannings,
+            relatedPlanningsInList: this.props.relatedPlanningsInList
         };
 
         return (
@@ -200,11 +203,12 @@ PlanningApp.propTypes = {
     [PLANNING.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
-
     onSave: PropTypes.func.isRequired,
     onUnpublish: PropTypes.func.isRequired,
     openCancelModal: PropTypes.func.isRequired,
     closePreview: PropTypes.func.isRequired,
+    showRelatedPlannings: PropTypes.func,
+    relatedPlanningsInList: PropTypes.object
 };
 
 const mapStateToProps = (state) => ({
@@ -220,6 +224,7 @@ const mapStateToProps = (state) => ({
     currentAgendaId: selectors.getCurrentAgendaId(state),
     session: selectors.getSessionDetails(state),
     privileges: selectors.getPrivileges(state),
+    relatedPlanningsInList: selectors.eventsAndPlanning.getRelatedPlanningsInList(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -239,6 +244,7 @@ const mapDispatchToProps = (dispatch) => ({
     [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]: (event) => dispatch(actions.addEventToCurrentAgenda(event)),
     [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]: (event) => dispatch(actions.events.ui.openUnspikeModal(event)),
     [EVENTS.ITEM_ACTIONS.SPIKE.actionName]: (event) => dispatch(actions.events.ui.openSpikeModal(event)),
+
     [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]: (event) => dispatch(actions.events.ui.openCancelModal(event)),
     [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]: (event) => dispatch(actions.events.ui.openPostponeModal(event)),
     // Planning Item actions
@@ -252,6 +258,7 @@ const mapDispatchToProps = (dispatch) => ({
         (planning) => dispatch(actions.planning.ui.openCancelPlanningModal(planning)),
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
         (planning) => dispatch(actions.planning.ui.openCancelAllCoverageModal(planning)),
+    showRelatedPlannings: (event) => dispatch(actions.eventsPlanning.ui.showRelatedPlannings(event))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlanningApp);

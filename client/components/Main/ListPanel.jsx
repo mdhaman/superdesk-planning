@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {ListGroup} from './';
+import {ListGroup} from '.';
 import {PanelInfo} from '../UI';
 import {EVENTS, PLANNING} from '../../constants';
 
@@ -16,6 +16,9 @@ export class ListPanel extends React.PureComponent {
             agendas,
             session,
             privileges,
+            activeFilter,
+            showRelatedPlannings,
+            relatedPlanningsInList
         } = this.props;
 
         return groups.length <= 0 ? (
@@ -39,6 +42,7 @@ export class ListPanel extends React.PureComponent {
                         agendas: agendas,
                         session: session,
                         privileges: privileges,
+                        activeFilter: activeFilter,
                         [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]:
                             this.props[EVENTS.ITEM_ACTIONS.DUPLICATE.actionName],
                         [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]:
@@ -60,7 +64,9 @@ export class ListPanel extends React.PureComponent {
                         [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]:
                             this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
                         [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
-                            this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]
+                            this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
+                        showRelatedPlannings: showRelatedPlannings,
+                        relatedPlanningsInList: relatedPlanningsInList
                     };
 
                     return <ListGroup key={group.date} {...listGroupProps} />;
@@ -82,6 +88,7 @@ ListPanel.propTypes = {
     agendas: PropTypes.array.isRequired,
     session: PropTypes.object,
     privileges: PropTypes.object,
+    activeFilter: PropTypes.string,
     [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
@@ -93,4 +100,6 @@ ListPanel.propTypes = {
     [PLANNING.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
+    showRelatedPlannings: PropTypes.func,
+    relatedPlanningsInList: PropTypes.object
 };
