@@ -8,7 +8,7 @@ import {
     ASSIGNMENTS,
     PUBLISHED_STATE,
 } from '../constants/index';
-import {get, isNil, uniq} from 'lodash';
+import {get, isNil, uniq, sortBy} from 'lodash';
 import {
     getItemWorkflowState,
     isItemLockedInThisSession,
@@ -436,6 +436,47 @@ const getCoverageReadOnlyFields = (
     }
 };
 
+const getPlanningByDate = (plansInList, events) => {
+    if (!plansInList) return [];
+
+    const days = {};
+
+    plansInList.forEach((plan) => {
+        const dates = new Set();
+
+        plan.event = get(events, get(plan, 'event_item'));
+        plan.coverages.forEach((coverage) =>
+            dates.add(
+                moment(
+                    get(coverage, 'planning.scheduled', plan._planning_date)
+                ).format('YYYY-MM-DD')
+            )
+        );
+
+        if (dates.size < 1) {
+            dates.add(moment(plan._planning_date).format('YYYY-MM-DD'));
+        }
+
+        dates.forEach((date) => {
+            if (!days[date]) {
+                days[date] = [];
+            }
+
+            days[date].push(plan);
+        });
+    });
+
+    let sortable = [];
+
+    for (let day in days)
+        sortable.push({
+            date: day,
+            events: days[day],
+        });
+
+    return sortBy(sortable, [(e) => e.date]);
+};
+
 // eslint-disable-next-line consistent-this
 const self = {
     canPublishPlanning,
@@ -456,6 +497,7 @@ const self = {
     isPlanMultiDay,
     getPlanningActions,
     isNotForPublication,
+    getPlanningByDate,
 };
 
 export default self;

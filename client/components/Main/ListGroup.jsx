@@ -1,13 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-
 import {ListGroupItem} from './';
 import {EVENTS, PLANNING} from '../../constants';
 
 export class ListGroup extends React.PureComponent {
     render() {
-        const {name, items, lockedItems, dateFormat, timeFormat, agendas, session, privileges} = this.props;
+        const {
+            name,
+            items,
+            lockedItems,
+            dateFormat,
+            timeFormat,
+            agendas,
+            session,
+            privileges,
+            activeFilter,
+            showRelatedPlannings,
+            relatedPlanningsInList,
+            onItemClick,
+            onDoubleClick
+        } = this.props;
 
         return (
             <div>
@@ -19,14 +32,15 @@ export class ListGroup extends React.PureComponent {
                         const listGroupItemProps = {
                             date: name,
                             item: item,
-                            onClick: this.props.onItemClick.bind(null, item),
-                            onDoubleClick: this.props.onDoubleClick.bind(null, item),
+                            onItemClick: onItemClick,
+                            onDoubleClick: onDoubleClick,
                             lockedItems: lockedItems,
                             dateFormat: dateFormat,
                             timeFormat: timeFormat,
                             agendas: agendas,
                             session: session,
                             privileges: privileges,
+                            activeFilter: activeFilter,
                             [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]:
                                 this.props[EVENTS.ITEM_ACTIONS.DUPLICATE.actionName],
                             [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]:
@@ -55,6 +69,8 @@ export class ListGroup extends React.PureComponent {
                                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
                             [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
                                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]
+                            showRelatedPlannings: showRelatedPlannings,
+                            relatedPlanningsInList: relatedPlanningsInList
                         };
 
                         return <ListGroupItem key={item._id} { ...listGroupItemProps } />;
@@ -78,6 +94,7 @@ ListGroup.propTypes = {
     agendas: PropTypes.array.isRequired,
     session: PropTypes.object,
     privileges: PropTypes.object,
+    activeFilter: PropTypes.string,
     [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
@@ -92,4 +109,6 @@ ListGroup.propTypes = {
     [PLANNING.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
+    showRelatedPlannings: PropTypes.func,
+    relatedPlanningsInList: PropTypes.object
 };

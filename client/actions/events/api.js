@@ -2,7 +2,7 @@ import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE} from '../../const
 import {EventUpdateMethods} from '../../components/Events';
 import {get, isEqual, cloneDeep, pickBy, isNil} from 'lodash';
 import * as selectors from '../../selectors';
-import {isItemLockedInThisSession} from '../../utils';
+import {isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
 import moment from 'moment';
 
 import planningApi from '../planning/api';
@@ -29,12 +29,12 @@ const loadEventsByRecurrenceId = (
             page: page,
             maxResults: maxResults,
         }))
-            .then((data) => {
+            .then((items) => {
                 if (loadToStore) {
-                    dispatch(self.receiveEvents(data._items));
+                    dispatch(self.receiveEvents(items));
                 }
 
-                return Promise.resolve(data._items);
+                return Promise.resolve(items);
             }, (error) => (
                 Promise.reject(error)
             ))
@@ -129,7 +129,7 @@ const query = (
                 }
                 // flattern responses and return a response-like object
                 return Promise.all(requests).then((responses) => (
-                    {_items: Array.prototype.concat(...responses.map((r) => r._items))}
+                    Array.prototype.concat.apply([], responses)
                 ));
             }
         }
@@ -230,6 +230,27 @@ const query = (
                     filter.range = range;
                 },
             },
+            {
+                condition: () => (advancedSearch.slugline),
+                do: () => {
+                    let queryText = sanitizeTextForQuery(advancedSearch.slugline);
+                    let queryString = {
+                        query_string: {
+                            query: 'slugline:(' + queryText + ')',
+                            lenient: false,
+                            default_operator: 'AND',
+                        },
+                    };
+
+                    must.push(queryString);
+                },
+            },
+            {
+                condition: () => (advancedSearch.pubstatus),
+                do: () => {
+                    must.push({term: {pubstatus: advancedSearch.pubstatus}});
+                },
+            }
         // loop over actions and performs if conditions are met
         ].forEach((action) => {
             if (action.condition()) {
@@ -270,17 +291,21 @@ const query = (
             }),
         })
         // convert dates to moment objects
-            .then((data) => ({
-                ...data,
-                _items: data._items.map((item) => ({
-                    ...item,
-                    dates: {
-                        ...item.dates,
-                        start: moment(item.dates.start),
-                        end: moment(item.dates.end),
-                    },
-                })),
-            }));
+            .then((data) => {
+                const results = {
+                    ...data,
+                    _items: data._items.map((item) => ({
+                        ...item,
+                        dates: {
+                            ...item.dates,
+                            start: moment(item.dates.start),
+                            end: moment(item.dates.end),
+                        },
+                    })),
+                };
+
+                return get(results, '_items');
+            });
     }
 );
 
@@ -310,9 +335,7 @@ const refetchEvents = () => (
 
         return Promise.all(promises)
             .then((responses) => {
-                let events = responses
-                    .map((e) => e._items)
-                    .reduce((a, b) => a.concat(b));
+                let events = Array.prototype.concat.apply([], responses);
 
                 dispatch(self.receiveEvents(events));
                 return Promise.resolve(events);
@@ -530,7 +553,7 @@ const silentlyFetchEventsById = (ids, spikeState = SPIKED_STATE.NOT_SPIKED, save
                     spikeState: spikeState,
                 }))
                     .then(
-                        (data) => resolve(data._items),
+                        (items) => resolve(items),
                         (error) => reject(error)
                     );
             } else {

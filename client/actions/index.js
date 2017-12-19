@@ -10,7 +10,7 @@ import assignments from './assignments/index';
 import autosave from './autosave';
 import main from './main';
 import locations from './locations';
-
+import eventsPlanning from './eventsPlanning/index';
 import {agendaNotifications} from './agenda';
 import {eventNotifications} from './events';
 
@@ -47,4 +47,5 @@ export {
     autosave,
     main,
     locations,
+    eventsPlanning,
 };

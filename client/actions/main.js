@@ -7,6 +7,7 @@ import {selectAgenda, fetchSelectedAgendaPlannings} from './agenda';
 import {getErrorMessage, getItemType} from '../utils';
 import {get} from 'lodash';
 import {MODALS} from '../constants';
+import eventsPlanningUi from './eventsPlanning/ui';
 
 const lockAndEdit = (item) => (
     (dispatch, getState, {notify}) => (
@@ -176,6 +177,9 @@ const filter = (ftype = null) => (
             return dispatch(
                 fetchSelectedAgendaPlannings()
             );
+        } else if (filterType === MAIN.FILTERS.COMBINED) {
+            dispatch(eventsPlanningUi.clearList());
+            return dispatch(eventsPlanningUi.fetch());
         }
 
         return Promise.resolve();
