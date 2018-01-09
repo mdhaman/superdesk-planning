@@ -464,6 +464,18 @@ const getEventsPlanningByDate = (data) => {
     return sortBy(sortable, [(e) => (e.date)]);
 };
 
+/*
+ * Convert event dates to moment.
+ */
+const convertToMoment = (item) => ({
+    ...item,
+    dates: {
+        ...item.dates,
+        start: moment(item.dates.start),
+        end: moment(item.dates.end)
+    }
+});
+
 // eslint-disable-next-line consistent-this
 const self = {
     isEventAllDay,
@@ -493,6 +505,7 @@ const self = {
     getEventActions,
     getEventsByDate,
     getEventsPlanningByDate,
+    convertToMoment
 };
 
 export default self;

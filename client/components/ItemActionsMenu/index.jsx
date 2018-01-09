@@ -64,7 +64,7 @@ export class ItemActionsMenu extends React.Component {
 
         return (
             <div className={classes}>
-                <a className={buttonClasses} onClick={this.renderMenu.bind(this)}>
+                <a className={buttonClasses}>
                     <i className="icon-dots-vertical" />
                 </a>
             </div>

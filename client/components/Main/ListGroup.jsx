@@ -23,7 +23,7 @@ export class ListGroup extends React.PureComponent {
         } = this.props;
 
         return (
-            <div>
+            <div className="ListGroup">
                 <div className="sd-list-header">
                     <span className="sd-list-header__name">{moment(name).format('dddd LL')}</span>
                 </div>

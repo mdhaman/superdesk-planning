@@ -1,12 +1,12 @@
 import {EVENTS_PLANNING} from '../constants';
 import {eventUtils} from '../utils';
-import {cloneDeep, keyBy, sortBy, get, omit} from 'lodash';
+import {cloneDeep, keyBy, sortBy, get, omit, uniq} from 'lodash';
 
 const initialState = {
     eventsAndPlanningInList: [],
+    lastRequestParams: {page: 1},
     search: {
-        currentSearch: undefined,
-        advancedSearchOpened: false,
+        currentSearch: undefined
     },
     relatedPlannings: {}
 };
@@ -16,7 +16,11 @@ const modifyEventsPlanning = (state, action) => {
     let eventsPlanningToAdd = keyBy(eventUtils.getEventsPlanningByDate(action.payload), 'date');
 
     Object.keys(eventsPlanningToAdd).forEach((eventDate) => {
-        eventsPlanning[eventDate] = eventsPlanningToAdd[eventDate];
+        if (!eventsPlanning[eventDate]) {
+            eventsPlanning[eventDate] = {date: eventDate, events: []};
+        }
+        eventsPlanning[eventDate].events = uniq(eventsPlanningToAdd[eventDate].events
+            .concat(eventsPlanning[eventDate].events || []));
     });
 
     return sortBy(Object.values(eventsPlanning), [(e) => (e.date)]);
@@ -36,9 +40,16 @@ export default function(state = initialState, action) {
             ...state,
             eventsAndPlanningInList: modifyEventsPlanning(state, action)
         };
+    case EVENTS_PLANNING.ACTIONS.REQUEST_EVENTS_PLANNING_LIST:
+        return {
+            ...state,
+            planningsAreLoading: true,
+            lastRequestParams: action.payload,
+        };
     case EVENTS_PLANNING.ACTIONS.CLEAR_EVENTS_PLANNING_LIST:
         return {
             ...state,
+            lastRequestParams: {page: 1},
             eventsAndPlanningInList: []
         };
     case EVENTS_PLANNING.ACTIONS.SHOW_RELATED_PLANNINGS:

@@ -115,9 +115,9 @@ export class EventItem extends React.PureComponent {
         );
 
         const getPlannings = () => (
-            get(this.props.relatedPlanningsInList, item._id, []).map((plan) => (
+            get(this.props.relatedPlanningsInList, item._id, []).map((plan, index) => (
                 <PlanningItem
-                    key={plan._id}
+                    key={index}
                     item={plan}
                     date={date}
                     lockedItems={lockedItems}

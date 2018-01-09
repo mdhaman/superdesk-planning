@@ -2,7 +2,7 @@ import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE} from '../../const
 import {EventUpdateMethods} from '../../components/Events';
 import {get, isEqual, cloneDeep, pickBy, isNil} from 'lodash';
 import * as selectors from '../../selectors';
-import {isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
+import {eventUtils, isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
 import moment from 'moment';
 
 import planningApi from '../planning/api';
@@ -80,6 +80,158 @@ const unspike = (events) => (
     }
 );
 
+
+const getCriteria = (
+    {
+        advancedSearch = {},
+        fulltext,
+        recurrenceId,
+        startDateGreaterThan,
+        spikeState = SPIKED_STATE.NOT_SPIKED,
+    }
+) => {
+    let query = {};
+    const filter = {};
+    let mustNot = [];
+    let must = [];
+
+    // List of actions to perform if the condition is true
+    [
+        {
+            condition: () => (fulltext),
+            do: () => {
+                must.push({query_string: {query: fulltext}});
+            },
+        },
+        {
+            condition: () => (recurrenceId),
+            do: () => {
+                must.push({term: {recurrence_id: recurrenceId}});
+            },
+        },
+        {
+            condition: () => (startDateGreaterThan),
+            do: () => {
+                filter.range = {
+                    ...get(filter, 'range', {}),
+                    'dates.start': {gt: startDateGreaterThan},
+                };
+            },
+        },
+        {
+            condition: () => (advancedSearch.name),
+            do: () => {
+                must.push({query_string: {query: advancedSearch.name}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.source),
+            do: () => {
+                const providers = advancedSearch.source.map((provider) => provider.name);
+
+                must.push({terms: {source: providers}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.location),
+            do: () => {
+                const location = get(advancedSearch.location, 'name', advancedSearch.location);
+
+                must.push({match_phrase: {'location.name': location}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.calendars),
+            do: () => {
+                const codes = advancedSearch.calendars.map((cat) => cat.qcode);
+
+                must.push({terms: {'calendars.qcode': codes}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.anpa_category),
+            do: () => {
+                const codes = advancedSearch.anpa_category.map((cat) => cat.qcode);
+
+                must.push({terms: {'anpa_category.qcode': codes}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.subject),
+            do: () => {
+                const codes = advancedSearch.subject.map((sub) => sub.qcode);
+
+                must.push({terms: {'subject.qcode': codes}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.dates),
+            do: () => {
+                const range = {};
+
+                if (advancedSearch.dates.start) {
+                    range['dates.start'] = {gte: advancedSearch.dates.start};
+                }
+
+                if (advancedSearch.dates.end) {
+                    range['dates.end'] = {lte: advancedSearch.dates.end};
+                }
+
+                filter.range = range;
+            },
+        },
+        {
+            condition: () => (advancedSearch.slugline),
+            do: () => {
+                let queryText = sanitizeTextForQuery(advancedSearch.slugline);
+                let queryString = {
+                    query_string: {
+                        query: 'slugline:(' + queryText + ')',
+                        lenient: false,
+                        default_operator: 'AND',
+                    },
+                };
+
+                must.push(queryString);
+            },
+        },
+        {
+            condition: () => (advancedSearch.pubstatus),
+            do: () => {
+                must.push({term: {pubstatus: advancedSearch.pubstatus}});
+            },
+        }
+    // loop over actions and performs if conditions are met
+    ].forEach((action) => {
+        if (action.condition()) {
+            action.do();
+        }
+    });
+
+    // default filter
+    if (isEqual(filter, {}) && isEqual(must, []) && isEqual(mustNot, [])) {
+        filter.range = {'dates.end': {gte: 'now/d'}};
+    }
+
+    switch (spikeState) {
+    case SPIKED_STATE.SPIKED:
+        must.push({term: {state: WORKFLOW_STATE.SPIKED}});
+        break;
+    case SPIKED_STATE.BOTH:
+        break;
+    case SPIKED_STATE.NOT_SPIKED:
+    default:
+        mustNot.push({term: {state: WORKFLOW_STATE.SPIKED}});
+    }
+
+    query.bool = {
+        must: must,
+        must_not: mustNot,
+    };
+
+    return {query, filter};
+};
+
 /**
  * Action Dispatcher for query the api for events
  * You can provide one of the following parameters to fetch from the server
@@ -105,9 +257,6 @@ const query = (
     }
 ) => (
     (dispatch, getState, {api}) => {
-        let query = {};
-        const filter = {};
-        let mustNot = [];
         let must = [];
 
         if (ids) {
@@ -133,151 +282,15 @@ const query = (
                 ));
             }
         }
-        // List of actions to perform if the condition is true
-        [
-            {
-                condition: () => (fulltext),
-                do: () => {
-                    must.push({query_string: {query: fulltext}});
-                },
-            },
-            {
-                condition: () => (recurrenceId),
-                do: () => {
-                    must.push({term: {recurrence_id: recurrenceId}});
-                },
-            },
-            {
-                condition: () => (startDateGreaterThan),
-                do: () => {
-                    filter.range = {
-                        ...get(filter, 'range', {}),
-                        'dates.start': {gt: startDateGreaterThan},
-                    };
-                },
-            },
-            {
-                condition: () => (advancedSearch.name),
-                do: () => {
-                    must.push({query_string: {query: advancedSearch.name}});
-                },
-            },
-            {
-                condition: () => (advancedSearch.source),
-                do: () => {
-                    const providers = advancedSearch.source.map((provider) => provider.name);
-                    const queries = providers.map((provider) => (
-                        {term: {source: provider}}
-                    ));
 
-                    must.push(...queries);
-                },
-            },
+        const criteria = self.getCriteria(
             {
-                condition: () => (advancedSearch.location),
-                do: () => {
-                    const location = get(advancedSearch.location, 'name', advancedSearch.location);
-
-                    must.push({match_phrase: {'location.name': location}});
-                },
-            },
-            {
-                condition: () => (advancedSearch.calendars),
-                do: () => {
-                    const codes = advancedSearch.calendars.map((cat) => cat.qcode);
-                    const queries = codes.map((code) => (
-                        {term: {'calendars.qcode': code}}
-                    ));
-
-                    must.push(...queries);
-                },
-            },
-            {
-                condition: () => (advancedSearch.anpa_category),
-                do: () => {
-                    const codes = advancedSearch.anpa_category.map((cat) => cat.qcode);
-                    const queries = codes.map((code) => (
-                        {term: {'anpa_category.qcode': code}}
-                    ));
-
-                    must.push(...queries);
-                },
-            },
-            {
-                condition: () => (advancedSearch.subject),
-                do: () => {
-                    const codes = advancedSearch.subject.map((sub) => sub.qcode);
-                    const queries = codes.map((code) => (
-                        {term: {'subject.qcode': code}}
-                    ));
-
-                    must.push(...queries);
-                },
-            },
-            {
-                condition: () => (advancedSearch.dates),
-                do: () => {
-                    const range = {};
-
-                    if (advancedSearch.dates.start) {
-                        range['dates.start'] = {gte: advancedSearch.dates.start};
-                    }
-
-                    if (advancedSearch.dates.end) {
-                        range['dates.end'] = {lte: advancedSearch.dates.end};
-                    }
-
-                    filter.range = range;
-                },
-            },
-            {
-                condition: () => (advancedSearch.slugline),
-                do: () => {
-                    let queryText = sanitizeTextForQuery(advancedSearch.slugline);
-                    let queryString = {
-                        query_string: {
-                            query: 'slugline:(' + queryText + ')',
-                            lenient: false,
-                            default_operator: 'AND',
-                        },
-                    };
-
-                    must.push(queryString);
-                },
-            },
-            {
-                condition: () => (advancedSearch.pubstatus),
-                do: () => {
-                    must.push({term: {pubstatus: advancedSearch.pubstatus}});
-                },
-            }
-        // loop over actions and performs if conditions are met
-        ].forEach((action) => {
-            if (action.condition()) {
-                action.do();
-            }
-        });
-
-        // default filter
-        if (isEqual(filter, {}) && isEqual(must, []) && isEqual(mustNot, [])) {
-            filter.range = {'dates.end': {gte: 'now/d'}};
-        }
-
-        switch (spikeState) {
-        case SPIKED_STATE.SPIKED:
-            must.push({term: {state: WORKFLOW_STATE.SPIKED}});
-            break;
-        case SPIKED_STATE.BOTH:
-            break;
-        case SPIKED_STATE.NOT_SPIKED:
-        default:
-            mustNot.push({term: {state: WORKFLOW_STATE.SPIKED}});
-        }
-
-        query.bool = {
-            must: must,
-            must_not: mustNot,
-        };
+                advancedSearch,
+                fulltext,
+                recurrenceId,
+                startDateGreaterThan,
+                spikeState
+            });
 
         // Query the API and sort by date
         return api('events').query({
@@ -286,22 +299,15 @@ const query = (
             sort: '[("dates.start",1)]',
             embedded: {files: 1},
             source: JSON.stringify({
-                query: query,
-                filter: filter,
+                query: criteria.query,
+                filter: criteria.filter,
             }),
         })
         // convert dates to moment objects
             .then((data) => {
                 const results = {
                     ...data,
-                    _items: data._items.map((item) => ({
-                        ...item,
-                        dates: {
-                            ...item.dates,
-                            start: moment(item.dates.start),
-                            end: moment(item.dates.end),
-                        },
-                    })),
+                    _items: data._items.map(eventUtils.convertToMoment),
                 };
 
                 return get(results, '_items');
@@ -839,6 +845,7 @@ const self = {
     _save,
     save,
     _saveLocation,
+    getCriteria
 };
 
 export default self;

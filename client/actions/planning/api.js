@@ -68,6 +68,256 @@ const cancelAllCoverage = (item) => (
     )
 );
 
+const getCriteria = ({
+    spikeState = SPIKED_STATE.BOTH,
+    agendas,
+    noAgendaAssigned = false,
+    advancedSearch = {},
+    onlyFuture,
+    fulltext,
+    adHocPlanning = false,
+}) => {
+    let query = {};
+    let mustNot = [];
+    let must = [];
+    let filter = {};
+
+    [
+        {
+            condition: () => (true),
+            do: () => {
+                if (agendas) {
+                    must.push({terms: {agendas: agendas}});
+                } else if (noAgendaAssigned) {
+                    mustNot.push({
+                        constant_score: {filter: {exists: {field: 'agendas'}}}
+                    });
+                }
+            },
+        },
+        {
+            condition: () => (spikeState === SPIKED_STATE.SPIKED),
+            do: () => {
+                must.push({term: {state: WORKFLOW_STATE.SPIKED}});
+            },
+        },
+        {
+            condition: () => (spikeState === SPIKED_STATE.NOT_SPIKED || !spikeState),
+            do: () => {
+                mustNot.push({term: {state: WORKFLOW_STATE.SPIKED}});
+            },
+        },
+        {
+            condition: () => (fulltext),
+            do: () => {
+                let queryString = {
+                    query_string: {
+                        query: '(' + sanitizeTextForQuery(fulltext) + ')',
+                        lenient: false,
+                        default_operator: 'AND',
+                    },
+                };
+
+                must.push(queryString);
+            },
+        },
+        {
+            condition: () => (adHocPlanning),
+            do: () => {
+                mustNot.push({exists: {field: 'event_item'}});
+            }
+        },
+        {
+            condition: () => (!get(advancedSearch, 'dates') && onlyFuture),
+            do: () => {
+                filter.nested = {
+                    path: '_planning_schedule',
+                    filter: {
+                        range: {
+                            '_planning_schedule.scheduled': {
+                                gte: 'now/d',
+                                time_zone: getTimeZoneOffset(),
+                            },
+                        },
+                    },
+                };
+
+                // must.push({
+                //     nested: {
+                //         path: '_planning_schedule',
+                //         filter: {
+                //             range: {
+                //                 '_planning_schedule.scheduled': {
+                //                     gte: 'now/d',
+                //                     time_zone: getTimeZoneOffset(),
+                //                 },
+                //             },
+                //         },
+                //     },
+                // });
+            },
+        },
+        {
+            condition: () => (!get(advancedSearch, 'dates') && !onlyFuture),
+            do: () => {
+                filter.nested = {
+                    path: '_planning_schedule',
+                    filter: {
+                        range: {
+                            '_planning_schedule.scheduled': {
+                                lt: 'now/d',
+                                time_zone: getTimeZoneOffset(),
+                            },
+                        },
+                    },
+                };
+                // must.push({
+                //     nested: {
+                //         path: '_planning_schedule',
+                //         filter: {
+                //             range: {
+                //                 '_planning_schedule.scheduled': {
+                //                     lt: 'now/d',
+                //                     time_zone: getTimeZoneOffset(),
+                //                 },
+                //             },
+                //         },
+                //     },
+                // });
+            },
+        },
+        {
+            condition: () => (get(advancedSearch, 'dates')),
+            do: () => {
+                let fieldName = '_planning_schedule.scheduled';
+                let range = {};
+
+                range[fieldName] = {time_zone: getTimeZoneOffset()};
+                let rangeType = get(advancedSearch, 'dates.range');
+
+                if (rangeType === 'today') {
+                    range[fieldName].gte = 'now/d';
+                    range[fieldName].lt = 'now+24h/d';
+                } else if (rangeType === 'last24') {
+                    range[fieldName].gte = 'now-24h';
+                    range[fieldName].lt = 'now';
+                } else if (rangeType === 'week') {
+                    range[fieldName].gte = 'now/w';
+                    range[fieldName].lt = 'now+1w/w';
+                } else {
+                    if (get(advancedSearch, 'dates.start')) {
+                        range[fieldName].gte = get(advancedSearch, 'dates.start');
+                    }
+
+                    if (get(advancedSearch, 'dates.end')) {
+                        range[fieldName].lte = get(advancedSearch, 'dates.end');
+                    }
+                }
+
+                filter.nested = {
+                    path: '_planning_schedule',
+                    filter: {range: range},
+                };
+
+                // must.push({
+                //     nested: {
+                //         path: '_planning_schedule',
+                //         filter: {range: range},
+                //     },
+                // });
+            },
+        },
+        {
+            condition: () => (advancedSearch.slugline),
+            do: () => {
+                let query = {bool: {should: []}};
+                let queryText = sanitizeTextForQuery(advancedSearch.slugline);
+                let queryString = {
+                    query_string: {
+                        query: 'slugline:(' + queryText + ')',
+                        lenient: false,
+                        default_operator: 'AND',
+                    },
+                };
+
+                query.bool.should.push(queryString);
+                queryString = cloneDeep(queryString);
+                queryString.query_string.query = 'coverages.planning.slugline:(' + queryText + ')';
+
+                if (!advancedSearch.noCoverage) {
+                    query.bool.should.push({
+                        nested: {
+                            path: 'coverages',
+                            query: {bool: {must: [queryString]}},
+                        },
+                    });
+                }
+
+                must.push(query);
+            },
+        },
+        {
+            condition: () => (Array.isArray(advancedSearch.anpa_category) &&
+            advancedSearch.anpa_category.length > 0),
+            do: () => {
+                const codes = advancedSearch.anpa_category.map((cat) => cat.qcode);
+
+                must.push({terms: {'anpa_category.qcode': codes}});
+            },
+        },
+        {
+            condition: () => (Array.isArray(advancedSearch.subject) &&
+            advancedSearch.subject.length > 0),
+            do: () => {
+                const codes = advancedSearch.subject.map((subject) => subject.qcode);
+
+                must.push({terms: {'subject.qcode': codes}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.urgency),
+            do: () => {
+                must.push({term: {urgency: advancedSearch.urgency}});
+            },
+        },
+        {
+            condition: () => (advancedSearch.g2_content_type),
+            do: () => {
+                let term = {'coverages.planning.g2_content_type': advancedSearch.g2_content_type};
+
+                must.push({
+                    nested: {
+                        path: 'coverages',
+                        filter: {term: term},
+                    },
+                });
+            },
+        },
+        {
+            condition: () => (advancedSearch.noCoverage),
+            do: () => {
+                mustNot.push({
+                    nested: {
+                        path: 'coverages',
+                        filter: {exists: {field: 'coverages.coverage_id'}},
+                    },
+                });
+            },
+        },
+    ].forEach((action) => {
+        if (action.condition()) {
+            action.do();
+        }
+    });
+
+    query.bool = {
+        must: must,
+        must_not: mustNot,
+    };
+
+    return {query, filter};
+};
+
 /**
  * Action dispatcher to perform fetch the list of planning items from the server.
  * @param {string} eventIds - An event ID to fetch Planning items for that event
@@ -89,8 +339,6 @@ const query = ({
     adHocPlanning = false,
 }) => (
     (dispatch, getState, {api}) => {
-        let query = {};
-        let mustNot = [];
         let must = [];
 
         if (eventIds) {
@@ -118,226 +366,15 @@ const query = ({
             }
         }
 
-        [
-            {
-                condition: () => (true),
-                do: () => {
-                    if (agendas) {
-                        must.push({terms: {agendas: agendas}});
-                    } else if (noAgendaAssigned) {
-                        let field = {field: 'agendas'};
-
-                        mustNot.push({constant_score: {filter: {exists: field}}});
-                    }
-                },
-            },
-            {
-                condition: () => (spikeState === SPIKED_STATE.SPIKED),
-                do: () => {
-                    must.push({term: {state: WORKFLOW_STATE.SPIKED}});
-                },
-            },
-            {
-                condition: () => (spikeState === SPIKED_STATE.NOT_SPIKED || !spikeState),
-                do: () => {
-                    mustNot.push({term: {state: WORKFLOW_STATE.SPIKED}});
-                },
-            },
-            {
-                condition: () => (fulltext),
-                do: () => {
-                    let queryString = {
-                        query_string: {
-                            query: '(' + sanitizeTextForQuery(fulltext) + ')',
-                            lenient: false,
-                            default_operator: 'AND',
-                        },
-                    };
-
-                    must.push(queryString);
-                },
-            },
-            {
-                condition: () => (adHocPlanning),
-                do: () => {
-                    mustNot.push({exists: {field: 'event_item'}});
-                }
-            },
-            {
-                condition: () => (!get(advancedSearch, 'dates') && onlyFuture),
-                do: () => {
-                    must.push({
-                        nested: {
-                            path: '_planning_schedule',
-                            query: {
-                                bool: {
-                                    must: [
-                                        {
-                                            range: {
-                                                '_planning_schedule.scheduled': {
-                                                    gte: 'now/d',
-                                                    time_zone: getTimeZoneOffset(),
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            },
-                        },
-                    });
-                },
-            },
-            {
-                condition: () => (!get(advancedSearch, 'dates') && !onlyFuture),
-                do: () => {
-                    must.push({
-                        nested: {
-                            path: '_planning_schedule',
-                            query: {
-                                bool: {
-                                    must: [
-                                        {
-                                            range: {
-                                                '_planning_schedule.scheduled': {
-                                                    lt: 'now/d',
-                                                    time_zone: getTimeZoneOffset(),
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            },
-                        },
-                    });
-                },
-            },
-            {
-                condition: () => (get(advancedSearch, 'dates')),
-                do: () => {
-                    let fieldName = '_planning_schedule.scheduled';
-                    let range = {};
-
-                    range[fieldName] = {time_zone: getTimeZoneOffset()};
-                    let rangeType = get(advancedSearch, 'dates.range');
-
-                    if (rangeType === 'today') {
-                        range[fieldName].gte = 'now/d';
-                        range[fieldName].lt = 'now+24h/d';
-                    } else if (rangeType === 'last24') {
-                        range[fieldName].gte = 'now-24h';
-                        range[fieldName].lt = 'now';
-                    } else if (rangeType === 'week') {
-                        range[fieldName].gte = 'now/w';
-                        range[fieldName].lt = 'now+1w/w';
-                    } else {
-                        if (get(advancedSearch, 'dates.start')) {
-                            range[fieldName].gte = get(advancedSearch, 'dates.start');
-                        }
-
-                        if (get(advancedSearch, 'dates.end')) {
-                            range[fieldName].lte = get(advancedSearch, 'dates.end');
-                        }
-                    }
-
-                    must.push({
-                        nested: {
-                            path: '_planning_schedule',
-                            query: {bool: {must: [{range: range}]}},
-                        },
-                    });
-                },
-            },
-            {
-                condition: () => (advancedSearch.slugline),
-                do: () => {
-                    let query = {bool: {should: []}};
-                    let queryText = sanitizeTextForQuery(advancedSearch.slugline);
-                    let queryString = {
-                        query_string: {
-                            query: 'slugline:(' + queryText + ')',
-                            lenient: false,
-                            default_operator: 'AND',
-                        },
-                    };
-
-                    query.bool.should.push(queryString);
-                    queryString = cloneDeep(queryString);
-                    queryString.query_string.query = 'coverages.planning.slugline:(' + queryText + ')';
-
-                    if (!advancedSearch.noCoverage) {
-                        query.bool.should.push({
-                            nested: {
-                                path: 'coverages',
-                                query: {bool: {must: [queryString]}},
-                            },
-                        });
-                    }
-
-                    must.push(query);
-                },
-            },
-            {
-                condition: () => (Array.isArray(advancedSearch.anpa_category) &&
-                advancedSearch.anpa_category.length > 0),
-                do: () => {
-                    const codes = advancedSearch.anpa_category.map((cat) => cat.qcode);
-
-                    must.push({terms: {'anpa_category.qcode': codes}});
-                },
-            },
-            {
-                condition: () => (Array.isArray(advancedSearch.subject) &&
-                advancedSearch.subject.length > 0),
-                do: () => {
-                    const codes = advancedSearch.subject.map((subject) => subject.qcode);
-
-                    must.push({terms: {'subject.qcode': codes}});
-                },
-            },
-            {
-                condition: () => (advancedSearch.urgency),
-                do: () => {
-                    must.push({term: {urgency: advancedSearch.urgency}});
-                },
-            },
-            {
-                condition: () => (advancedSearch.g2_content_type),
-                do: () => {
-                    let term = {'coverages.planning.g2_content_type': advancedSearch.g2_content_type};
-
-                    must.push({
-                        nested: {
-                            path: 'coverages',
-                            query: {bool: {must: [{term: term}]}},
-                        },
-                    });
-                },
-            },
-            {
-                condition: () => (advancedSearch.noCoverage),
-                do: () => {
-                    let noCoverageTerm = {
-                        constant_score: {filter: {exists: {field: 'coverages.coverage_id'}}},
-                    };
-
-                    mustNot.push({
-                        nested: {
-                            path: 'coverages',
-                            query: {bool: {must: [noCoverageTerm]}},
-                        },
-                    });
-                },
-            },
-        ].forEach((action) => {
-            if (!eventIds && action.condition()) {
-                action.do();
-            }
+        let criteria = self.getCriteria({
+            spikeState,
+            agendas,
+            noAgendaAssigned,
+            advancedSearch,
+            onlyFuture,
+            fulltext,
+            adHocPlanning
         });
-
-        query.bool = {
-            must: must,
-            must_not: mustNot,
-        };
 
         let sort = [
             {
@@ -368,8 +405,9 @@ const query = ({
             page: page,
             max_results: maxResults,
             source: JSON.stringify({
-                query,
-                sort,
+                query: criteria.query,
+                filter: criteria.filter,
+                sort: sort,
             }),
             embedded: {original_creator: 1}, // Nest creator to planning
             timestamp: new Date(),
@@ -1048,6 +1086,7 @@ const self = {
     loadPlanningByRecurrenceId,
     cancel,
     cancelAllCoverage,
+    getCriteria,
 };
 
 export default self;

@@ -134,6 +134,8 @@ class EventsService(superdesk.Service):
             if 'update_method' in event:
                 del event['update_method']
 
+            set_planning_schedule(event)
+
             # generates events based on recurring rules
             if event['dates'].get('recurring_rule', None):
                 generated_events.extend(generate_recurring_events(event))
@@ -242,6 +244,7 @@ class EventsService(superdesk.Service):
             # In case of stand-alone event, only time is updated - other date updates have endpoints
             if updates.get('dates'):
                 remove_lock_information(updates)
+                set_planning_schedule(updates)
 
             push_notification(
                 'events:updated',
@@ -371,6 +374,7 @@ class EventsService(superdesk.Service):
             updates['update_method'] = UPDATE_SINGLE
             event_reschedule_service = get_resource_service('events_reschedule')
             updates['dates'] = updated_event['dates']
+            set_planning_schedule(updates)
             event_reschedule_service.update(original.get(config.ID_FIELD),
                                             updates,
                                             original)
@@ -381,6 +385,7 @@ class EventsService(superdesk.Service):
             # And update the start/end dates to be in line with the new recurring rules
             updates['dates']['start'] = updated_event['dates']['start']
             updates['dates']['end'] = updated_event['dates']['end']
+            set_planning_schedule(updates)
             remove_lock_information(item=updates)
 
         # Create the new events and generate their history
@@ -667,6 +672,18 @@ events_schema = {
             }
         }
     },  # end dates
+    # This is a extra field so that we can sort in the combined view of events and planning.
+    # It will store the dates.start of the event.
+    # Drawback it will create nested document while indexing.
+    '_planning_schedule': {
+        'type': 'list',
+        'mapping': {
+            'type': 'nested',
+            'properties': {
+                'scheduled': {'type': 'date'},
+            }
+        }
+    },
     'occur_status': {
         'type': 'dict',
         'schema': {
@@ -951,10 +968,18 @@ def generate_recurring_events(event):
 
         # set expiry date
         overwrite_event_expiry_date(new_event)
-
+        # the _planning_schedule
+        set_planning_schedule(new_event)
         generated_events.append(new_event)
 
     return generated_events
+
+
+def set_planning_schedule(event):
+    if event and event.get('dates') and event['dates'].get('start'):
+        event['_planning_schedule'] = [
+            {'scheduled': event['dates']['start']}
+        ]
 
 
 def set_next_occurrence(updates):
@@ -965,3 +990,5 @@ def set_next_occurrence(updates):
     time_delta = updates['dates']['end'] - updates['dates']['start']
     updates['dates']['start'] = new_dates[0]
     updates['dates']['end'] = new_dates[0] + time_delta
+    set_planning_schedule(updates)
+

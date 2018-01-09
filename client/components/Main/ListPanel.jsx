@@ -4,7 +4,31 @@ import {ListGroup} from '.';
 import {PanelInfo} from '../UI';
 import {EVENTS, PLANNING} from '../../constants';
 
-export class ListPanel extends React.PureComponent {
+window.scrollNode = null;
+
+export class ListPanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {isNextPageLoading: false};
+    }
+
+    handleScroll(event) {
+        if (this.state.isNextPageLoading) {
+            return;
+        }
+
+        const node = event.target;
+
+        if (node && node.scrollTop + node.offsetHeight + 200 >= node.scrollHeight) {
+            this.setState({isNextPageLoading: true});
+
+            this.props.loadMore(this.props.activeFilter)
+                .finally(() => {
+                    this.setState({isNextPageLoading: false});
+                });
+        }
+    }
+
     render() {
         const {
             groups,
@@ -29,7 +53,8 @@ export class ListPanel extends React.PureComponent {
                 />
             </div>
         ) : (
-            <div className="sd-column-box__main-column">
+            <div className="sd-column-box__main-column"
+                onScroll={this.handleScroll.bind(this)}>
                 {groups.map((group) => {
                     const listGroupProps = {
                         name: group.date,
@@ -101,5 +126,7 @@ ListPanel.propTypes = {
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
     showRelatedPlannings: PropTypes.func,
-    relatedPlanningsInList: PropTypes.object
+    relatedPlanningsInList: PropTypes.object,
+    loadMore: PropTypes.func.isRequired,
 };
+
