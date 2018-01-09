@@ -2,11 +2,14 @@ import {get} from 'lodash';
 import * as selectors from '../selectors';
 import {SubmissionError} from 'redux-form';
 import {fetchSelectedAgendaPlannings} from './index';
-import {EVENTS, SPIKED_STATE} from '../constants';
+import {EventUpdateMethods} from '../components/fields';
+import {EVENTS, SPIKED_STATE, PUBLISHED_STATE, MAIN} from '../constants';
 import {eventUtils, getErrorMessage, retryDispatch} from '../utils';
 
 import eventsApi from './events/api';
 import eventsUi from './events/ui';
+import eventsPlanningUi from './eventsPlanning/ui';
+
 
 const duplicateEvent = (event) => (
     (dispatch) => {
@@ -67,7 +70,7 @@ const createDuplicate = (event) => (
     )
 );
 
-/** Action factory that fetchs the next page of the previous request */
+/** Action factory that fetch the next page of the previous request */
 function loadMoreEvents() {
     return (dispatch, getState) => {
         const previousParams = selectors.getPreviousEventRequestParams(getState());
@@ -135,9 +138,16 @@ const toggleEventsList = () => (
  * @param {object} data - Events and User IDs
  */
 const onEventCreated = (_e, data) => (
-    (dispatch) => {
+    (dispatch, getState) => {
         if (data && data.item) {
-            dispatch(fetchEventById(data.item));
+            dispatch(fetchEventById(data.item))
+                .then((event) => {
+                    if (selectors.main.activeFilter(getState) === MAIN.FILTERS.COMBINED) {
+                        const storedEvent = selectors.events.storedEvents(getState())[data.item];
+
+                        dispatch(eventsPlanningUi.addToList({events: [storedEvent]}));
+                    }
+                });
         }
     }
 );

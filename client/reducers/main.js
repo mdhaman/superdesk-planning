@@ -3,7 +3,7 @@ import {MAIN} from '../constants';
 const initialState = {
     previewItem: null,
     editItem: null,
-    filter: null,
+    filter: null
 };
 
 export default function(state = initialState, action) {

@@ -5,6 +5,10 @@ import {storedPlannings} from './planning';
 
 export const getEventsPlanningList = (state) => get(state, 'eventsAndPlanning.eventsAndPlanningInList', []);
 export const getRelatedPlanningsList = (state) => get(state, 'eventsAndPlanning.relatedPlannings', {});
+export const getCurrentSearch = (state) =>
+    get(state, 'eventsAndPlanning.search.currentSearch', {});
+export const getPreviousRequestParams = (state) =>
+    get(state, 'eventsAndPlanning.lastRequestParams', {});
 
 export const orderedEventsPlanning = createSelector(
     [storedEvents, storedPlannings, getEventsPlanningList],
@@ -47,4 +51,14 @@ export const getRelatedPlanningsInList = createSelector(
 
         return relatedPlannings;
     }
+);
+
+
+export const getEventsPlaningFilterParams = createSelector(
+    [getCurrentSearch],
+    (search) => ({
+        fulltext: null,
+        advancedSearch: search,
+        page: 1
+    })
 );

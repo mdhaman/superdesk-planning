@@ -1,5 +1,6 @@
 import {MAIN, ITEM_TYPE} from '../constants';
 import {activeFilter, previewItem} from '../selectors/main';
+import {getEventsPlaningFilterParams} from '../selectors/eventsandplanning';
 import planningUi from './planning/ui';
 import eventsUi from './events/ui';
 import {locks, showModal} from './';
@@ -8,6 +9,7 @@ import {getErrorMessage, getItemType} from '../utils';
 import {get} from 'lodash';
 import {MODALS} from '../constants';
 import eventsPlanningUi from './eventsPlanning/ui';
+import {loadMoreEvents} from './events';
 
 const lockAndEdit = (item) => (
     (dispatch, getState, {notify}) => (
@@ -160,6 +162,7 @@ const filter = (ftype = null) => (
         $timeout(() => $location.search('filter', filterType));
 
         if (filterType === MAIN.FILTERS.EVENTS) {
+            dispatch(eventsPlanningUi.clearList());
             dispatch(planningUi.clearList());
             return dispatch(eventsUi.fetchEvents({
                 fulltext: JSON.parse(
@@ -167,6 +170,7 @@ const filter = (ftype = null) => (
                 ).fulltext,
             }));
         } else if (filterType === MAIN.FILTERS.PLANNING) {
+            dispatch(eventsPlanningUi.clearList());
             dispatch(eventsUi.clearList());
             const searchAgenda = $location.search().agenda;
 
@@ -178,8 +182,29 @@ const filter = (ftype = null) => (
                 fetchSelectedAgendaPlannings()
             );
         } else if (filterType === MAIN.FILTERS.COMBINED) {
-            dispatch(eventsPlanningUi.clearList());
-            return dispatch(eventsPlanningUi.fetch());
+            dispatch(eventsUi.clearList());
+            dispatch(planningUi.clearList());
+            const params = getEventsPlaningFilterParams(getState());
+
+            return dispatch(eventsPlanningUi.fetch(params));
+        }
+
+        return Promise.resolve();
+    }
+);
+
+const loadMore = (filterType) => (
+    (dispatch, getState) => {
+        if (!filterType) {
+            return Promise.reject('Cannot load more date.');
+        }
+
+        if (filterType === MAIN.FILTERS.EVENTS) {
+            return dispatch(loadMoreEvents());
+        } else if (filterType === MAIN.FILTERS.PLANNING) {
+            return dispatch(planningUi.fetchMoreToList());
+        } else if (filterType === MAIN.FILTERS.COMBINED) {
+            return dispatch(eventsPlanningUi.loadMore());
         }
 
         return Promise.resolve();
@@ -199,6 +224,8 @@ const self = {
     filter,
     openConfirmationModal,
     closePreview,
+    history,
+    loadMore
 };
 
 export default self;

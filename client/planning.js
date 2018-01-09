@@ -133,7 +133,8 @@ class PlanningApp extends React.Component {
             [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
             showRelatedPlannings: this.props.showRelatedPlannings,
-            relatedPlanningsInList: this.props.relatedPlanningsInList
+            relatedPlanningsInList: this.props.relatedPlanningsInList,
+            loadMore: this.props.loadMore
         };
 
         return (
@@ -223,7 +224,8 @@ PlanningApp.propTypes = {
     openCancelModal: PropTypes.func.isRequired,
     closePreview: PropTypes.func.isRequired,
     showRelatedPlannings: PropTypes.func,
-    relatedPlanningsInList: PropTypes.object
+    relatedPlanningsInList: PropTypes.object,
+    loadMore: PropTypes.func
 };
 
 const mapStateToProps = (state) => ({
@@ -259,7 +261,6 @@ const mapDispatchToProps = (dispatch) => ({
     [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]: (event) => dispatch(actions.addEventToCurrentAgenda(event)),
     [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]: (event) => dispatch(actions.events.ui.openUnspikeModal(event)),
     [EVENTS.ITEM_ACTIONS.SPIKE.actionName]: (event) => dispatch(actions.events.ui.openSpikeModal(event)),
-
     [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]: (event) => dispatch(actions.events.ui.openCancelModal(event)),
     [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]: (event) => dispatch(actions.events.ui.openPostponeModal(event)),
     [EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName]: (event) => dispatch(actions.events.ui.updateTime(event)),
@@ -278,7 +279,8 @@ const mapDispatchToProps = (dispatch) => ({
         (planning) => dispatch(actions.planning.ui.openCancelPlanningModal(planning)),
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
         (planning) => dispatch(actions.planning.ui.openCancelAllCoverageModal(planning)),
-    showRelatedPlannings: (event) => dispatch(actions.eventsPlanning.ui.showRelatedPlannings(event))
+    showRelatedPlannings: (event) => dispatch(actions.eventsPlanning.ui.showRelatedPlannings(event)),
+    loadMore: (filterType) => dispatch(actions.main.loadMore(filterType))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlanningApp);
