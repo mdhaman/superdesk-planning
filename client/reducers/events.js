@@ -9,11 +9,6 @@ const initialLastRequest = {page: 1};
 const initialState = {
     events: {},
     eventsInList: [],
-    search: {
-        currentSearch: undefined,
-        advancedSearchOpened: false,
-    },
-    lastRequestParams: initialLastRequest,
     show: true,
     showEventDetails: null,
     highlightedEvent: null,
@@ -125,19 +120,6 @@ const eventsReducer = createReducer(initialState, {
             show: !state.show,
         }
     ),
-    [EVENTS.ACTIONS.REQUEST_EVENTS]: (state, payload) => (
-        {
-            ...state,
-            lastRequestParams: {
-                ...initialLastRequest,
-                ...payload,
-            },
-            search: {
-                ...state.search,
-                currentSearch: payload,
-            },
-        }
-    ),
     [EVENTS.ACTIONS.ADD_EVENTS]: (state, payload) => {
         const _events = modifyEventsBeingAdded(state, payload);
 
@@ -175,7 +157,6 @@ const eventsReducer = createReducer(initialState, {
             ...state,
             search: {
                 ...state.search,
-                advancedSearchOpened: true,
             },
         }
     ),
@@ -184,7 +165,6 @@ const eventsReducer = createReducer(initialState, {
             ...state,
             search: {
                 ...state.search,
-                advancedSearchOpened: false,
             },
         }
     ),

@@ -64,7 +64,7 @@ export class ListGroup extends React.PureComponent {
                             [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
                                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]
                             showRelatedPlannings: showRelatedPlannings,
-                            relatedPlanningsInList: relatedPlanningsInList
+                            relatedPlanningsInList: relatedPlanningsInList,
                         };
 
                         return <ListGroupItem key={item._id} { ...listGroupItemProps } />;
@@ -101,5 +101,5 @@ ListGroup.propTypes = {
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
     showRelatedPlannings: PropTypes.func,
-    relatedPlanningsInList: PropTypes.object
+    relatedPlanningsInList: PropTypes.object,
 };

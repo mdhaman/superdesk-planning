@@ -14,7 +14,7 @@ import {eventUtils, getItemWorkflowStateLabel, gettext} from '../../utils';
 export class EventItem extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {openPlanningItems: false};
+        this.state = {openPlanningItems: false, hover: false};
         this.togglePlanningItem = this.togglePlanningItem.bind(this);
     }
 
@@ -163,5 +163,5 @@ EventItem.propTypes = {
     showRelatedPlannings: PropTypes.func,
     relatedPlanningsInList: PropTypes.object,
     date: PropTypes.string.isRequired,
-    agendas: PropTypes.array.isRequired,
+    agendas: PropTypes.array.isRequired
 };

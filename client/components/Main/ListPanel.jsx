@@ -4,12 +4,10 @@ import {ListGroup} from '.';
 import {PanelInfo} from '../UI';
 import {EVENTS, PLANNING} from '../../constants';
 
-window.scrollNode = null;
-
 export class ListPanel extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {isNextPageLoading: false};
+        this.state = {isNextPageLoading: false, panel: null};
     }
 
     handleScroll(event) {
@@ -91,7 +89,7 @@ export class ListPanel extends React.Component {
                         [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
                             this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
                         showRelatedPlannings: showRelatedPlannings,
-                        relatedPlanningsInList: relatedPlanningsInList
+                        relatedPlanningsInList: relatedPlanningsInList,
                     };
 
                     return <ListGroup key={group.date} {...listGroupProps} />;

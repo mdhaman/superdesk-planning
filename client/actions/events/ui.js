@@ -1,5 +1,5 @@
-import {PRIVILEGES, EVENTS, PUBLISHED_STATE, MODALS, SPIKED_STATE} from '../../constants';
 import {showModal, hideModal, locks} from '../index';
+import {PRIVILEGES, EVENTS, PUBLISHED_STATE, MODALS, SPIKED_STATE, MAIN} from '../../constants';
 import eventsApi from './api';
 import {fetchSelectedAgendaPlannings} from '../agenda';
 import main from '../main';
@@ -27,8 +27,8 @@ const fetchEvents = (params = {
 }) => (
     (dispatch, getState, {$timeout, $location}) => {
         dispatch({
-            type: EVENTS.ACTIONS.REQUEST_EVENTS,
-            payload: params,
+            type: MAIN.ACTIONS.REQUEST,
+            payload: { [MAIN.FILTERS.EVENTS]: params },
         });
 
         return dispatch(eventsApi.query(params))

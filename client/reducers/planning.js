@@ -20,15 +20,8 @@ const initialState = {
     currentPlanningId: undefined,
     editorOpened: false,
     planningsAreLoading: false,
-    onlyFuture: true,
-    filterPlanningKeyword: null,
     readOnly: true,
     planningHistoryItems: [],
-    lastRequestParams: {page: 1},
-    search: {
-        currentSearch: undefined,
-        advancedSearchOpened: false,
-    },
 };
 
 let plannings;
@@ -83,14 +76,6 @@ const planningReducer = createReducer(initialState, {
             ...state,
             lastRequestParams: {page: 1},
             planningsInList: [],
-        }
-    ),
-
-    [PLANNING.ACTIONS.REQUEST_PLANNINGS]: (state, payload) => (
-        {
-            ...state,
-            planningsAreLoading: true,
-            lastRequestParams: payload,
         }
     ),
 
@@ -206,26 +191,6 @@ const planningReducer = createReducer(initialState, {
         ...state,
         planningHistoryItems: payload,
     }),
-
-    [PLANNING.ACTIONS.OPEN_ADVANCED_SEARCH]: (state) => (
-        {
-            ...state,
-            search: {
-                ...state.search,
-                advancedSearchOpened: true,
-            },
-        }
-    ),
-
-    [PLANNING.ACTIONS.CLOSE_ADVANCED_SEARCH]: (state) => (
-        {
-            ...state,
-            search: {
-                ...state.search,
-                advancedSearchOpened: false,
-            },
-        }
-    ),
 
     [PLANNING.ACTIONS.SET_ADVANCED_SEARCH]: (state, payload) => (
         {

@@ -13,6 +13,7 @@ import {
     SPIKED_STATE,
     WORKFLOW_STATE,
     MODALS,
+    MAIN
 } from '../../constants';
 
 /**
@@ -73,7 +74,6 @@ const getCriteria = ({
     agendas,
     noAgendaAssigned = false,
     advancedSearch = {},
-    onlyFuture,
     fulltext,
     adHocPlanning = false,
 }) => {
@@ -128,7 +128,7 @@ const getCriteria = ({
             }
         },
         {
-            condition: () => (!get(advancedSearch, 'dates') && onlyFuture),
+            condition: () => (!get(advancedSearch, 'dates')),
             do: () => {
                 filter.nested = {
                     path: '_planning_schedule',
@@ -149,35 +149,6 @@ const getCriteria = ({
                 //             range: {
                 //                 '_planning_schedule.scheduled': {
                 //                     gte: 'now/d',
-                //                     time_zone: getTimeZoneOffset(),
-                //                 },
-                //             },
-                //         },
-                //     },
-                // });
-            },
-        },
-        {
-            condition: () => (!get(advancedSearch, 'dates') && !onlyFuture),
-            do: () => {
-                filter.nested = {
-                    path: '_planning_schedule',
-                    filter: {
-                        range: {
-                            '_planning_schedule.scheduled': {
-                                lt: 'now/d',
-                                time_zone: getTimeZoneOffset(),
-                            },
-                        },
-                    },
-                };
-                // must.push({
-                //     nested: {
-                //         path: '_planning_schedule',
-                //         filter: {
-                //             range: {
-                //                 '_planning_schedule.scheduled': {
-                //                     lt: 'now/d',
                 //                     time_zone: getTimeZoneOffset(),
                 //                 },
                 //             },
@@ -333,7 +304,6 @@ const query = ({
     noAgendaAssigned = false,
     page = 1,
     advancedSearch = {},
-    onlyFuture,
     fulltext,
     maxResults = 25,
     adHocPlanning = false,
@@ -371,7 +341,6 @@ const query = ({
             agendas,
             noAgendaAssigned,
             advancedSearch,
-            onlyFuture,
             fulltext,
             adHocPlanning
         });
@@ -379,15 +348,12 @@ const query = ({
         let sort = [
             {
                 '_planning_schedule.scheduled': {
-                    order: onlyFuture ? 'asc' : 'desc',
+                    order: 'asc',
                     nested_path: '_planning_schedule',
                     nested_filter: {
                         range: {
-                            '_planning_schedule.scheduled': onlyFuture ? {
+                            '_planning_schedule.scheduled': {
                                 gte: 'now/d',
-                                time_zone: getTimeZoneOffset(),
-                            } : {
-                                lt: 'now/d',
                                 time_zone: getTimeZoneOffset(),
                             },
                         },
@@ -409,7 +375,6 @@ const query = ({
                 filter: criteria.filter,
                 sort: sort,
             }),
-            embedded: {original_creator: 1}, // Nest creator to planning
             timestamp: new Date(),
         })
             .then((data) => {

@@ -24,3 +24,26 @@ export const itemGroups = createSelector(
         return [];
     }
 );
+
+export const searchParams = (state) => get(state, 'main.search', {});
+
+export const currentSearch = createSelector(
+    [activeFilter, searchParams],
+    (filter, params) => {
+        return get(params, `${filter}.currentSearch`, {});
+    }
+);
+
+export const lastRequestParams = createSelector(
+    [activeFilter, searchParams],
+    (filter, params) => {
+        return get(params, `${filter}.lastRequestParams`, {});
+    }
+);
+
+export const fullText = createSelector(
+    [activeFilter, searchParams],
+    (filter, params) => {
+        return get(params, `${filter}.fullText`, {});
+    }
+);

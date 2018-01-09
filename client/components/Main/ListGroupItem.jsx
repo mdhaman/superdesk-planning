@@ -157,5 +157,5 @@ ListGroupItem.propTypes = {
     [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]: PropTypes.func,
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]: PropTypes.func,
     showRelatedPlannings: PropTypes.func,
-    relatedPlanningsInList: PropTypes.object
+    relatedPlanningsInList: PropTypes.object,
 };

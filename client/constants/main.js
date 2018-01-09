@@ -5,6 +5,7 @@ export const MAIN = {
         FILTER: 'MAIN_FILTER',
         HISTORY: 'MAIN_HISTORY',
         CLOSE_PREVIEW: 'MAIN_CLOSE_PREVIEW'
+        REQUEST: 'MAIN_REQUEST'
     },
     FILTERS: {
         COMBINED: 'COMBINED',
