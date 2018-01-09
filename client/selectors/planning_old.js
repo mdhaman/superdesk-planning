@@ -327,11 +327,9 @@ export const getPlanningFilterParams = createSelector(
         const params = {
             noAgendaAssigned: agendaId === AGENDA.FILTER.NO_AGENDA_ASSIGNED,
             agendas: agenda ? [agenda._id] : null,
-            page: 1,
             advancedSearch: get(planningSearch, 'advancedSearch', {}),
             spikeState: get(planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED),
             fulltext: filterKeyword,
-            onlyFuture: onlyFuture,
         };
 
         return params;

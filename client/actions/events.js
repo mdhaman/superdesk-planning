@@ -73,15 +73,15 @@ const createDuplicate = (event) => (
 /** Action factory that fetch the next page of the previous request */
 function loadMoreEvents() {
     return (dispatch, getState) => {
-        const previousParams = selectors.getPreviousEventRequestParams(getState());
+        const previousParams = selectors.main.lastRequestParams(getState());
         const params = {
             ...previousParams,
             page: previousParams.page + 1,
         };
 
         dispatch({
-            type: EVENTS.ACTIONS.REQUEST_EVENTS,
-            payload: params,
+            type: MAIN.ACTIONS.REQUEST,
+            payload: { [MAIN.FILTERS.EVENTS]: params },
         });
         return dispatch(eventsApi.query(params))
             .then((items) => {

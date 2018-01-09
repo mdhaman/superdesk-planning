@@ -4,10 +4,6 @@ import {cloneDeep, keyBy, sortBy, get, omit, uniq} from 'lodash';
 
 const initialState = {
     eventsAndPlanningInList: [],
-    lastRequestParams: {page: 1},
-    search: {
-        currentSearch: undefined
-    },
     relatedPlannings: {}
 };
 

@@ -3,12 +3,12 @@ import {get} from 'lodash';
 import {storedEvents} from './events';
 import {storedPlannings} from './planning';
 
-export const getEventsPlanningList = (state) => get(state, 'eventsAndPlanning.eventsAndPlanningInList', []);
-export const getRelatedPlanningsList = (state) => get(state, 'eventsAndPlanning.relatedPlannings', {});
+export const getEventsPlanningList = (state) => get(state, 'eventsPlanning.eventsAndPlanningInList', []);
+export const getRelatedPlanningsList = (state) => get(state, 'eventsPlanning.relatedPlannings', {});
 export const getCurrentSearch = (state) =>
-    get(state, 'eventsAndPlanning.search.currentSearch', {});
+    get(state, 'eventsPlanning.search.currentSearch', {});
 export const getPreviousRequestParams = (state) =>
-    get(state, 'eventsAndPlanning.lastRequestParams', {});
+    get(state, 'eventsPlanning.lastRequestParams', {});
 
 export const orderedEventsPlanning = createSelector(
     [storedEvents, storedPlannings, getEventsPlanningList],

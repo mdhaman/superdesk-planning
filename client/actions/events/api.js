@@ -1,5 +1,5 @@
-import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE} from '../../constants';
-import {EventUpdateMethods} from '../../components/Events';
+import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE, MAIN} from '../../constants';
+import {EventUpdateMethods} from '../../components/fields';
 import {get, isEqual, cloneDeep, pickBy, isNil} from 'lodash';
 import * as selectors from '../../selectors';
 import {eventUtils, isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
@@ -333,8 +333,8 @@ const refetchEvents = () => (
             };
 
             dispatch({
-                type: EVENTS.ACTIONS.REQUEST_EVENTS,
-                payload: params,
+                type: MAIN.ACTIONS.REQUEST,
+                payload: { [MAIN.FILTERS.EVENTS]: params },
             });
             promises.push(dispatch(self.query(params)));
         }

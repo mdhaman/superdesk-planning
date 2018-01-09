@@ -4,7 +4,7 @@ import {locks} from '../index';
 import main from '../main';
 import {checkPermission, getErrorMessage, isItemLockedInThisSession, planningUtils} from '../../utils';
 import * as selectors from '../../selectors';
-import {PLANNING, PRIVILEGES, SPIKED_STATE, WORKSPACE, MODALS, ASSIGNMENTS} from '../../constants';
+import {PLANNING, PRIVILEGES, SPIKED_STATE, WORKSPACE, MODALS, ASSIGNMENTS, MAIN} from '../../constants';
 import * as actions from '../index';
 import {get, orderBy} from 'lodash';
 import {change} from 'redux-form';
@@ -624,8 +624,8 @@ const _resetAdvancedSearch = () => ({type: PLANNING.ACTIONS.CLEAR_ADVANCED_SEARC
  * @param {object} params - Parameters used when querying for planning items
  */
 const requestPlannings = (params = {}) => ({
-    type: PLANNING.ACTIONS.REQUEST_PLANNINGS,
-    payload: params,
+    type: MAIN.ACTIONS.REQUEST,
+    payload: {[MAIN.FILTERS.PLANNING]: params},
 });
 
 const spike = checkPermission(
