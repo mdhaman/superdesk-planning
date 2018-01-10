@@ -275,7 +275,6 @@ const toggleOnlyFutureFilter = () => (
     (dispatch, getState) => {
         dispatch({
             type: PLANNING.ACTIONS.SET_ONLY_FUTURE,
-            payload: !getState().planning.onlyFuture,
         });
 
         return dispatch(actions.fetchSelectedAgendaPlannings());
@@ -340,9 +339,9 @@ const fetchToList = (params) => (
  * Uses planning.lastRequestParams from the redux store for the api query,
  * then adds the received Planning items to the Planning List
  */
-const fetchMoreToList = () => (
+const loadMore = () => (
     (dispatch, getState) => {
-        const previousParams = selectors.getPreviousPlanningRequestParams(getState());
+        const previousParams = selectors.main.lastRequestParams(getState());
         const params = {
             ...previousParams,
             page: get(previousParams, 'page', 0) + 1,
@@ -889,7 +888,7 @@ const self = {
     requestPlannings,
     setInList,
     addToList,
-    fetchMoreToList,
+    loadMore,
     publish,
     unpublish,
     saveAndPublish,

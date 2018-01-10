@@ -117,7 +117,6 @@ export const getTestActionStore = () => {
                 currentPlanningId: undefined,
                 editorOpened: false,
                 planningsAreLoading: false,
-                onlyFuture: true,
                 onlyActive: false,
                 lastRequestParams: {
                     agendas: ['a1'],

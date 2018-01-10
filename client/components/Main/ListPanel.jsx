@@ -7,7 +7,10 @@ import {EVENTS, PLANNING} from '../../constants';
 export class ListPanel extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {isNextPageLoading: false, panel: null};
+        this.state = {
+            isNextPageLoading: false,
+            scrollTop: 0
+        };
     }
 
     handleScroll(event) {
@@ -17,8 +20,11 @@ export class ListPanel extends React.Component {
 
         const node = event.target;
 
-        if (node && node.scrollTop + node.offsetHeight + 200 >= node.scrollHeight) {
-            this.setState({isNextPageLoading: true});
+        // scroll event gets fired on hover of each item in the list.
+        // this.state.scrollTop is used to check if the scroll position has changed
+        if (node && node.scrollTop + node.offsetHeight + 100 >= node.scrollHeight &&
+            this.state.scrollTop !== node.scrollTop) {
+            this.setState({isNextPageLoading: true, scrollTop: node.scrollTop});
 
             this.props.loadMore(this.props.activeFilter)
                 .finally(() => {

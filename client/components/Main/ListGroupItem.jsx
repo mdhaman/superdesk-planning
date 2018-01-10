@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {debounce} from 'lodash';
 
-import {EventItem} from '../Events';
+import {EventItem, EventItemWithPlanning} from '../Events';
 import {PlanningItem} from '../Planning';
 
-import {ITEM_TYPE, EVENTS, PLANNING} from '../../constants';
-import {getItemType} from '../../utils';
+import {ITEM_TYPE, EVENTS, PLANNING, MAIN} from '../../constants';
+import {getItemType, eventUtils} from '../../utils';
+
 
 import '../../planning.scss';
 
@@ -57,8 +58,6 @@ export class ListGroupItem extends React.Component {
             session,
             privileges,
             activeFilter,
-            showRelatedPlannings,
-            relatedPlanningsInList
         } = this.props;
         const itemType = getItemType(item);
 
@@ -74,68 +73,77 @@ export class ListGroupItem extends React.Component {
             timeFormat: timeFormat,
             session: session,
             privileges: privileges,
-            agendas: agendas
+            activeFilter: activeFilter,
+        };
+
+        let eventProps = {
+            ...itemProps,
+            [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.DUPLICATE.actionName],
+            [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName],
+            [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.UNSPIKE.actionName],
+            [EVENTS.ITEM_ACTIONS.SPIKE.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.SPIKE.actionName],
+            [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName],
+            [EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName],
+        };
+
+        let planningProps = {
+            ...itemProps,
+            agendas: agendas,
+            date: date,
+            [PLANNING.ITEM_ACTIONS.DUPLICATE.actionName]:
+                this.props[PLANNING.ITEM_ACTIONS.DUPLICATE.actionName],
+            [PLANNING.ITEM_ACTIONS.SPIKE.actionName]:
+                this.props[PLANNING.ITEM_ACTIONS.SPIKE.actionName],
+            [PLANNING.ITEM_ACTIONS.UNSPIKE.actionName]:
+                this.props[PLANNING.ITEM_ACTIONS.UNSPIKE.actionName],
+            [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]:
+                this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
+            [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
+                this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
+            [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName],
+            [EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName],
+            [EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName]:
+                this.props[EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName],
         };
 
         switch (itemType) {
         case ITEM_TYPE.EVENT:
-            itemProps = {
-                ...itemProps,
-                activeFilter: activeFilter,
-                [EVENTS.ITEM_ACTIONS.DUPLICATE.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.DUPLICATE.actionName],
-                [EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.CREATE_PLANNING.actionName],
-                [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.UNSPIKE.actionName],
-                [EVENTS.ITEM_ACTIONS.SPIKE.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.SPIKE.actionName],
-                [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName],
-                [EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName],
-                showRelatedPlannings: showRelatedPlannings,
-                relatedPlanningsInList: relatedPlanningsInList,
-                date: date
-            };
+            if (eventUtils.eventHasPlanning(item) && activeFilter === MAIN.FILTERS.COMBINED) {
+                return (
+                    <EventItemWithPlanning
+                        eventProps={eventProps}
+                        planningProps={planningProps}
+                        showRelatedPlannings={this.props.showRelatedPlannings}
+                        relatedPlanningsInList={this.props.relatedPlanningsInList}
+                    />
+                )
+            }
+
             return (
-                <EventItem { ... itemProps } />
+                <EventItem { ... eventProps } />
             );
 
         case ITEM_TYPE.PLANNING:
-            itemProps = {
-                ...itemProps,
-                date: date,
-                agendas: agendas,
-                [PLANNING.ITEM_ACTIONS.DUPLICATE.actionName]:
-                    this.props[PLANNING.ITEM_ACTIONS.DUPLICATE.actionName],
-                [PLANNING.ITEM_ACTIONS.SPIKE.actionName]:
-                    this.props[PLANNING.ITEM_ACTIONS.SPIKE.actionName],
-                [PLANNING.ITEM_ACTIONS.UNSPIKE.actionName]:
-                    this.props[PLANNING.ITEM_ACTIONS.UNSPIKE.actionName],
-                [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]:
-                    this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
-                [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
-                    this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
-                [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.UPDATE_TIME.actionName],
-                [EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.RESCHEDULE_EVENT.actionName],
-                [EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName]:
-                    this.props[EVENTS.ITEM_ACTIONS.CONVERT_TO_RECURRING.actionName],
-            };
             return (
-                <PlanningItem { ...itemProps } />
+                <PlanningItem { ...planningProps } />
             );
         }
 

@@ -3,7 +3,7 @@ import {get} from 'lodash';
 import eventsAndPlanningApi from './api';
 import eventsApi from '../events/api';
 import planningApi from '../planning/api';
-import {EVENTS_PLANNING} from '../../constants';
+import {EVENTS_PLANNING, MAIN} from '../../constants';
 import * as selectors from '../../selectors';
 
 /**
@@ -25,13 +25,12 @@ const fetch = (params = {}) => (
 );
 
 /**
- * Action to load next page of the events and planning object
+ * Action to load next page of the events and planning combined view
  * @return object - Object containing array of events and planning
  */
 const loadMore = () => (
     (dispatch, getState) => {
-        console.log('loadMore');
-        const previousParams = selectors.eventsAndPlanning.getPreviousRequestParams(getState());
+        const previousParams = selectors.main.lastRequestParams(getState());
         const params = {
             ...previousParams,
             page: get(previousParams, 'page', 0) + 1,
@@ -77,8 +76,8 @@ const showRelatedPlannings = (event) => (
 );
 
 const requestEventsPlanning = (payload = {}) => ({
-    type: EVENTS_PLANNING.ACTIONS.REQUEST_EVENTS_PLANNING_LIST,
-    payload: payload
+    type: MAIN.ACTIONS.REQUEST,
+    payload: {[MAIN.FILTERS.COMBINED]: payload}
 });
 
 const _showRelatedPlannings = (event) => ({

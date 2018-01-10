@@ -194,9 +194,9 @@ describe('events', () => {
             });
         });
 
-        it('addToEventsList', () => {
+        it('addToList', () => {
             const ids = ['e4', 'e5', 'e6'];
-            const action = actions.addToEventsList(ids);
+            const action = actions.events.ui.addToList(ids);
 
             expect(action).toEqual({
                 type: 'ADD_TO_EVENTS_LIST',

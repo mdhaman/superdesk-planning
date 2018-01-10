@@ -11,7 +11,6 @@ import session from './session';
 import workspace from './workspace';
 import templates from './templates';
 import main from './main';
-import autosave from './autosave';
 import eventsPlanning from './eventsplanning';
 
 const returnState = (state) => state || {};
@@ -29,7 +28,6 @@ const planningApp = combineReducers({
     workspace: workspace,
     templates: templates,
     main: main,
-    autosave: autosave,
     eventsPlanning: eventsPlanning,
 
 

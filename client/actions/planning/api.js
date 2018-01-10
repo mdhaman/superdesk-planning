@@ -418,9 +418,9 @@ const fetch = (params = {}) => (
  */
 const refetch = (page = 1, plannings = []) => (
     (dispatch, getState) => {
-        const prevParams = selectors.getPreviousPlanningRequestParams(getState());
+        const prevParams = selectors.main.lastRequestParams(getState());
         let params = {
-            ...selectors.getPlanningFilterParams(getState()),
+            ...selectors.planning.getPlanningFilterParams(getState()),
             page,
         };
 

@@ -28,7 +28,6 @@ describe('planning', () => {
                 currentPlanningId: undefined,
                 editorOpened: false,
                 planningsAreLoading: false,
-                onlyFuture: true,
                 filterPlanningKeyword: null,
                 readOnly: true,
                 planningHistoryItems: [],
@@ -205,27 +204,6 @@ describe('planning', () => {
 
             expect(result.editorOpened).toBe(false);
             expect(result.currentPlanningId).toBe(undefined);
-        });
-
-        it('SET_ONLY_FUTURE', () => {
-            let result = planning(
-                initialState,
-                {
-                    type: 'SET_ONLY_FUTURE',
-                    payload: false,
-                }
-            );
-
-            expect(result.onlyFuture).toBe(false);
-
-            result = planning(
-                result,
-                {
-                    type: 'SET_ONLY_FUTURE',
-                    payload: true,
-                }
-            );
-            expect(result.onlyFuture).toBe(true);
         });
 
         it('PLANNING_FILTER_BY_KEYWORD', () => {

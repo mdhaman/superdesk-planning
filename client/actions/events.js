@@ -70,27 +70,6 @@ const createDuplicate = (event) => (
     )
 );
 
-/** Action factory that fetch the next page of the previous request */
-function loadMoreEvents() {
-    return (dispatch, getState) => {
-        const previousParams = selectors.main.lastRequestParams(getState());
-        const params = {
-            ...previousParams,
-            page: previousParams.page + 1,
-        };
-
-        dispatch({
-            type: MAIN.ACTIONS.REQUEST,
-            payload: { [MAIN.FILTERS.EVENTS]: params },
-        });
-        return dispatch(eventsApi.query(params))
-            .then((items) => {
-                dispatch(eventsApi.receiveEvents(items));
-                dispatch(addToEventsList(items.map((e) => e._id)));
-            });
-    };
-}
-
 /**
  * Action Dispatcher to fetch a single event using its ID
  * and add or update the Event in the Redux Store
@@ -101,7 +80,7 @@ const fetchEventById = (_id) => (
         api.find('events', _id, {embedded: {files: 1}})
             .then((event) => {
                 dispatch(eventsApi.receiveEvents([event]));
-                dispatch(addToEventsList([event._id]));
+                dispatch(eventsUi.addToList([event._id]));
                 return Promise.resolve(event);
             }, (error) => {
                 notify.error(getErrorMessage(
@@ -111,17 +90,6 @@ const fetchEventById = (_id) => (
             })
     )
 );
-
-/**
- * Action to add events to the current list
- * This action makes sure the list of events are unique, no duplicates
- * @param {array} eventsIds - An array of Event IDs to add
- * @return {{type: string, payload: *}}
- */
-const addToEventsList = (eventsIds) => ({
-    type: EVENTS.ACTIONS.ADD_TO_EVENTS_LIST,
-    payload: eventsIds,
-});
 
 /**
  * Action to toggle the Events panel
@@ -227,9 +195,7 @@ export {
     duplicateEvent,
     toggleEventSelection,
     toggleEventsList,
-    addToEventsList,
     fetchEventById,
-    loadMoreEvents,
     eventNotifications,
     selectAllTheEventList,
     deselectAllTheEventList,

@@ -135,17 +135,6 @@ const planningReducer = createReducer(initialState, {
         }
     ),
 
-    [PLANNING.ACTIONS.SET_ONLY_FUTURE]: (state, payload) => (
-        {
-            ...state,
-            onlyFuture: payload,
-            search: {
-                ...state.search,
-                currentSearch: payload,
-            },
-        }
-    ),
-
     [PLANNING.ACTIONS.RECEIVE_COVERAGE]: (state, payload) => {
         plannings = cloneDeep(state.plannings);
         plan = get(plannings, payload.planning_item, null);

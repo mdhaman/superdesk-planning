@@ -8,6 +8,7 @@ import moment from 'moment';
 import planningApi from '../planning/api';
 import eventsUi from './ui';
 import locationApi from '../locations';
+import main from '../main'
 
 /**
  * Action dispatcher to load a series of recurring events into the local store.
@@ -322,7 +323,7 @@ const query = (
  */
 const refetchEvents = () => (
     (dispatch, getState) => {
-        const prevParams = selectors.getPreviousEventRequestParams(getState());
+        const prevParams = selectors.main.lastRequestParams(getState());
 
         const promises = [];
 
@@ -332,10 +333,8 @@ const refetchEvents = () => (
                 page: i,
             };
 
-            dispatch({
-                type: MAIN.ACTIONS.REQUEST,
-                payload: { [MAIN.FILTERS.EVENTS]: params },
-            });
+            dispatch(eventsUi.requestEvents(params));
+
             promises.push(dispatch(self.query(params)));
         }
 

@@ -26,10 +26,7 @@ const fetchEvents = (params = {
     page: 1,
 }) => (
     (dispatch, getState, {$timeout, $location}) => {
-        dispatch({
-            type: MAIN.ACTIONS.REQUEST,
-            payload: { [MAIN.FILTERS.EVENTS]: params },
-        });
+        dispatch(self.requestEvents(params));
 
         return dispatch(eventsApi.query(params))
             .then((items) => {
@@ -620,6 +617,33 @@ const unpublish = (event) => (
     )
 );
 
+
+/**
+ * Action to load more events
+ */
+const loadMore = () => {
+    return (dispatch, getState) => {
+        const previousParams = selectors.main.lastRequestParams(getState());
+        const params = {
+            ...previousParams,
+            page: previousParams.page + 1,
+        };
+
+        dispatch(self.requestEvents(params));
+
+        return dispatch(eventsApi.query(params))
+            .then((items) => {
+                dispatch(eventsApi.receiveEvents(items));
+                dispatch(self.addToList(items.map((e) => e._id)));
+            });
+    };
+}
+
+const requestEvents = (params = {}) => ({
+    type: MAIN.ACTIONS.REQUEST,
+    payload: {[MAIN.FILTERS.EVENTS]: params},
+});
+
 /**
  * Action to set the list of events in the current list
  * @param {Array} idsList - An array of Event IDs to assign to the current list
@@ -634,6 +658,17 @@ const setEventsList = (idsList) => ({
  * Clears the Events List
  */
 const clearList = () => ({type: EVENTS.ACTIONS.CLEAR_LIST});
+
+/**
+ * Action to add events to the current list
+ * This action makes sure the list of events are unique, no duplicates
+ * @param {array} eventsIds - An array of Event IDs to add
+ * @return {{type: string, payload: *}}
+ */
+const addToList = (eventsIds) => ({
+    type: EVENTS.ACTIONS.ADD_TO_EVENTS_LIST,
+    payload: eventsIds,
+});
 
 /**
  * Opens the Event in preview/read-only mode
@@ -732,6 +767,9 @@ const self = {
     saveWithConfirmation,
     receiveEventHistory,
     unpublish,
+    loadMore,
+    addToList,
+    requestEvents
 };
 
 export default self;

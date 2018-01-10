@@ -1,6 +1,6 @@
 import {EVENTS_PLANNING} from '../constants';
 import {eventUtils} from '../utils';
-import {cloneDeep, keyBy, sortBy, get, omit, uniq} from 'lodash';
+import {cloneDeep, keyBy, sortBy, get, omit, uniqBy} from 'lodash';
 
 const initialState = {
     eventsAndPlanningInList: [],
@@ -15,8 +15,8 @@ const modifyEventsPlanning = (state, action) => {
         if (!eventsPlanning[eventDate]) {
             eventsPlanning[eventDate] = {date: eventDate, events: []};
         }
-        eventsPlanning[eventDate].events = uniq(eventsPlanningToAdd[eventDate].events
-            .concat(eventsPlanning[eventDate].events || []));
+        eventsPlanning[eventDate].events = uniqBy(eventsPlanningToAdd[eventDate].events
+            .concat(eventsPlanning[eventDate].events || []), '_id');
     });
 
     return sortBy(Object.values(eventsPlanning), [(e) => (e.date)]);

@@ -22,7 +22,6 @@ const query = ({
             fulltext: fulltext,
             spikeState: spikeState,
             adHocPlanning: true, // only adhoc planning items,
-            onlyFuture: true,
             advancedSearch: pick(advancedSearch,
                 ['anpa_category', 'subject', 'slugline', 'pubstatus'])
         };

@@ -6,7 +6,6 @@ import {session} from './general';
 import {planningUtils} from '../utils';
 import {
     filterPlanningKeyword, getCurrentAgenda, getCurrentAgendaId, getPlanningSearch,
-    isOnlyFutureFiltered
 } from './planning_old';
 import {AGENDA, SPIKED_STATE} from '../constants';
 

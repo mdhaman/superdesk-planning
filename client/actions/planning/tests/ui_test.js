@@ -40,7 +40,7 @@ describe('actions.planning.ui', () => {
         sinon.stub(planningUi, 'setInList').callsFake(() => ({type: 'setInList'}));
         sinon.stub(planningUi, 'addToList').callsFake(() => ({type: 'addToList'}));
         sinon.stub(planningUi, 'fetchToList').callsFake(() => (Promise.resolve()));
-        sinon.stub(planningUi, 'fetchMoreToList').callsFake(() => (Promise.resolve()));
+        sinon.stub(planningUi, 'loadMore').callsFake(() => (Promise.resolve()));
         sinon.stub(planningApi, 'publish').callsFake(() => (Promise.resolve()));
         sinon.stub(planningApi, 'unpublish').callsFake(() => (Promise.resolve()));
         sinon.stub(planningApi, 'saveAndPublish').callsFake((item) => (Promise.resolve(item)));
@@ -501,8 +501,8 @@ describe('actions.planning.ui', () => {
             });
     });
 
-    it('fetchMoreToList', (done) => {
-        restoreSinonStub(planningUi.fetchMoreToList);
+    it('loadMore', (done) => {
+        restoreSinonStub(planningUi.loadMore);
         restoreSinonStub(planningApi.fetch);
         sinon.stub(planningApi, 'fetch').callsFake(
             () => (Promise.resolve(data.plannings))
@@ -514,7 +514,7 @@ describe('actions.planning.ui', () => {
             page: 2,
         };
 
-        store.test(done, planningUi.fetchMoreToList())
+        store.test(done, planningUi.loadMore())
             .then(() => {
                 expect(planningUi.requestPlannings.callCount).toBe(1);
                 expect(planningUi.requestPlannings.args[0]).toEqual([expectedParams]);

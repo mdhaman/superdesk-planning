@@ -274,7 +274,7 @@ const fetchSelectedAgendaPlannings = () => (
             return Promise.resolve();
         }
 
-        const params = selectors.getPlanningFilterParams(getState());
+        const params = selectors.planning.getPlanningFilterParams(getState());
 
         return dispatch(planning.ui.fetchToList(params));
     }
