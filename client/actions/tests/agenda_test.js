@@ -346,7 +346,6 @@ describe('agenda', () => {
                                 advancedSearch: {},
                                 spikeState: 'draft',
                                 fulltext: undefined,
-                                onlyFuture: true,
                             },
                         ]);
 
@@ -500,7 +499,6 @@ describe('agenda', () => {
                             advancedSearch: {},
                             spikeState: 'draft',
                             fulltext: undefined,
-                            onlyFuture: true,
                         }]);
                         done();
                     });
@@ -519,7 +517,6 @@ describe('agenda', () => {
                             advancedSearch: {},
                             spikeState: 'draft',
                             fulltext: undefined,
-                            onlyFuture: true,
                         }]);
                         done();
                     });

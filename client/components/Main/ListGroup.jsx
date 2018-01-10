@@ -62,7 +62,7 @@ export class ListGroup extends React.PureComponent {
                             [PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName]:
                                 this.props[PLANNING.ITEM_ACTIONS.CANCEL_PLANNING.actionName],
                             [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
-                                this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]
+                                this.props[PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName],
                             showRelatedPlannings: showRelatedPlannings,
                             relatedPlanningsInList: relatedPlanningsInList,
                         };

@@ -8,3 +8,4 @@ export {RepeatEventSummary} from './RepeatEventSummary';
 export {EventScheduleSummary} from './EventScheduleSummary';
 export {EventEditor} from './EventEditor';
 export {EventUpdateMethodInput, EventUpdateMethods} from './EventUpdateMethodInput';
+export {EventItemWithPlanning} from './EventItemWithPlanning';

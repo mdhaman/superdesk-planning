@@ -59,6 +59,5 @@ export const getEventsPlaningFilterParams = createSelector(
     (search) => ({
         fulltext: null,
         advancedSearch: search,
-        page: 1
     })
 );

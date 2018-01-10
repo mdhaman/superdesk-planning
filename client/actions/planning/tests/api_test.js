@@ -100,11 +100,7 @@ describe('actions.planning.api', () => {
         });
 
         it('list planning items of agendas in future', (done) => (
-            store.test(done, planningApi.query(
-                {
-                    agendas: ['a1', 'a2'],
-                    onlyFuture: true,
-                }
+            store.test(done, planningApi.query({agendas: ['a1', 'a2']}
             ))
                 .then(() => {
                     expect(services.api('planning').query.callCount).toBe(1);
@@ -155,11 +151,11 @@ describe('actions.planning.api', () => {
                 })
         ));
 
-        it('list planning items of agendas in past', (done) => (
+        // invalid test to be removed
+        xit('list planning items of agendas in past', (done) => (
             store.test(done, planningApi.query(
                 {
                     agendas: ['a1', 'a2'],
-                    onlyFuture: false,
                 }
             ))
                 .then(() => {
@@ -213,8 +209,7 @@ describe('actions.planning.api', () => {
 
         it('by list of planning not in any agendas', (done) => (
             store.test(done, planningApi.query({
-                noAgendaAssigned: true,
-                onlyFuture: false,
+                noAgendaAssigned: true
             }))
                 .then(() => {
                     let noAgenda = {constant_score: {filter: {exists: {field: 'agendas'}}}};
@@ -232,7 +227,7 @@ describe('actions.planning.api', () => {
                                             {
                                                 range: {
                                                     '_planning_schedule.scheduled': {
-                                                        lt: 'now/d',
+                                                        gte: 'now/d',
                                                         time_zone: getTimeZoneOffset(),
                                                     },
                                                 },
@@ -241,7 +236,7 @@ describe('actions.planning.api', () => {
                                     },
                                 },
                             },
-                        },
+                        }
                     ]);
 
                     expect(source.query.bool.must_not).toEqual([noAgenda]);

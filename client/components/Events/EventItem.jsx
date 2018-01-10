@@ -14,22 +14,11 @@ import {eventUtils, getItemWorkflowStateLabel, gettext} from '../../utils';
 export class EventItem extends React.PureComponent {
     constructor(props) {
         super(props);
-        this.state = {openPlanningItems: false, hover: false};
-        this.togglePlanningItem = this.togglePlanningItem.bind(this);
-    }
-
-    togglePlanningItem(evt) {
-        evt.stopPropagation();
-        if (!this.state.openPlanningItems) {
-            this.props.showRelatedPlannings(this.props.item);
-        }
-        this.setState({openPlanningItems: !this.state.openPlanningItems});
     }
 
     render() {
         const {item, onItemClick, lockedItems, dateFormat, timeFormat,
-            session, privileges, activeFilter, date, agendas} = this.props;
-        const {openPlanningItems} = this.state;
+            session, privileges, activeFilter, toggleRelatedPlanning} = this.props;
 
         if (!item) {
             return null;
@@ -38,16 +27,6 @@ export class EventItem extends React.PureComponent {
         const hasPlanning = eventUtils.eventHasPlanning(item);
         const isItemLocked = eventUtils.isEventLocked(item, lockedItems);
         const state = getItemWorkflowStateLabel(item);
-        const planningItems = get(item, 'planning_ids', []).length;
-        let planningItemText = '';
-
-        if (hasPlanning) {
-            const itemsText = planningItems > 1 ? gettext('items') : gettext('item');
-            const showHideText = openPlanningItems ? gettext('Hide') : gettext('Show');
-
-            planningItemText = `(${planningItems}) ${showHideText} ${gettext('planning')} ${itemsText}`;
-        }
-
         let borderState = false;
 
         if (isItemLocked)
@@ -75,8 +54,7 @@ export class EventItem extends React.PureComponent {
                 <PubStatus item={item} />
                 <Column
                     grow={true}
-                    border={false}
-                >
+                    border={false}>
                     <Row>
                         <Label
                             text={state.label}
@@ -98,10 +76,10 @@ export class EventItem extends React.PureComponent {
                         <span className="sd-overflow-ellipsis sd-list-item--element-grow">
                             <a
                                 className="text-link"
-                                onClick={this.togglePlanningItem}
+                                onClick={toggleRelatedPlanning}
                             >
                                 <i className="icon-calendar" />
-                                {planningItemText}
+                                {this.props.relatedPlanningText}
                             </a>
                         </span>
                     </Row>}
@@ -114,34 +92,7 @@ export class EventItem extends React.PureComponent {
             </Item>
         );
 
-        const getPlannings = () => (
-            get(this.props.relatedPlanningsInList, item._id, []).map((plan, index) => (
-                <PlanningItem
-                    key={index}
-                    item={plan}
-                    date={date}
-                    lockedItems={lockedItems}
-                    onItemClick={onItemClick}
-                    dateFormat={dateFormat}
-                    timeFormat={timeFormat}
-                    agendas={agendas}
-                />
-            ))
-        );
-
-        if (activeFilter !== MAIN.FILTERS.COMBINED || !hasPlanning) {
-            return renderEventItem();
-        } else if (activeFilter === MAIN.FILTERS.COMBINED && hasPlanning) {
-            return (
-                <NestedItem
-                    collapsed={!openPlanningItems}
-                    expanded={openPlanningItems}
-                    parentItem={renderEventItem()}
-                    nestedChildren={getPlannings()} />
-            );
-        }
-
-        return null;
+        return renderEventItem();
     }
 }
 
@@ -160,8 +111,10 @@ EventItem.propTypes = {
     [EVENTS.ITEM_ACTIONS.UNSPIKE.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.CANCEL_EVENT.actionName]: PropTypes.func,
     [EVENTS.ITEM_ACTIONS.POSTPONE_EVENT.actionName]: PropTypes.func,
-    showRelatedPlannings: PropTypes.func,
-    relatedPlanningsInList: PropTypes.object,
-    date: PropTypes.string.isRequired,
-    agendas: PropTypes.array.isRequired
+    toggleRelatedPlanning: PropTypes.func,
+    relatedPlanningText: PropTypes.string
+};
+
+EventItem.defaultProps = {
+    togglePlanningItem: () => { /* no-op */ }
 };

@@ -479,7 +479,6 @@ export const planningInitialState = {
     currentPlanningId: undefined,
     editorOpened: false,
     planningsAreLoading: false,
-    onlyFuture: true,
     filterPlanningKeyword: null,
     readOnly: true,
     planningHistoryItems: [],

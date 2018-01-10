@@ -9,7 +9,6 @@ import {getErrorMessage, getItemType} from '../utils';
 import {get} from 'lodash';
 import {MODALS} from '../constants';
 import eventsPlanningUi from './eventsPlanning/ui';
-import {loadMoreEvents} from './events';
 
 const lockAndEdit = (item) => (
     (dispatch, getState, {notify}) => (
@@ -187,9 +186,9 @@ const loadMore = (filterType) => (
         }
 
         if (filterType === MAIN.FILTERS.EVENTS) {
-            return dispatch(loadMoreEvents());
+            return dispatch(eventsUi.loadMore());
         } else if (filterType === MAIN.FILTERS.PLANNING) {
-            return dispatch(planningUi.fetchMoreToList());
+            return dispatch(planningUi.loadMore());
         } else if (filterType === MAIN.FILTERS.COMBINED) {
             return dispatch(eventsPlanningUi.loadMore());
         }

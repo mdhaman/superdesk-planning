@@ -4,7 +4,7 @@ export const MAIN = {
         EDIT: 'MAIN_EDIT',
         FILTER: 'MAIN_FILTER',
         HISTORY: 'MAIN_HISTORY',
-        CLOSE_PREVIEW: 'MAIN_CLOSE_PREVIEW'
+        CLOSE_PREVIEW: 'MAIN_CLOSE_PREVIEW',
         REQUEST: 'MAIN_REQUEST'
     },
     FILTERS: {
