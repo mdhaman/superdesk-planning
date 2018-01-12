@@ -12,7 +12,7 @@ import * as selectors from '../../selectors';
  * @return object - Object containing array of events and planning
  */
 const fetch = (params = {}) => (
-    (dispatch, getState) => {
+    (dispatch, getState, {$location, $timeout}) => {
         dispatch(self.requestEventsPlanning(params));
 
         return dispatch(eventsAndPlanningApi.query(params))
@@ -20,6 +20,9 @@ const fetch = (params = {}) => (
                 dispatch(eventsApi.receiveEvents(results.events));
                 dispatch(planningApi.receivePlannings(results.planning));
                 dispatch(self.setInList(results));
+                // update the url (deep linking)
+                $timeout(() => $location.search('searchParams', JSON.stringify(params)));
+                return results
             });
     }
 );
@@ -45,6 +48,18 @@ const loadMore = () => (
             });
     }
 );
+
+const refetch = () => (
+    (dispatch, getState) => {
+        return dispatch(eventsAndPlanningApi.refetch())
+            .then((results) => {
+                dispatch(eventsApi.receiveEvents(results.events));
+                dispatch(planningApi.receivePlannings(results.planning));
+                dispatch(self.addToList(results));
+            });
+    }
+);
+
 
 const setInList = ({events = [], planning = []}) => ({
     type: EVENTS_PLANNING.ACTIONS.SET_EVENTS_PLANNING_LIST,
@@ -106,6 +121,7 @@ const self = {
     clearRelatedPlannings,
     loadMore,
     requestEventsPlanning,
+    refetch
 };
 
 export default self;

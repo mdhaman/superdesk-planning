@@ -18,6 +18,24 @@ const initialState = {
     }
 };
 
+const modifyParams = (state, action) => {
+    let params = cloneDeep(state.search) || {};
+    Object.keys(action.payload).forEach((key) => {
+        const payloadParam = get(action.payload, key, {});
+        params[key] = {
+            ...params[key],
+            ...payloadParam
+        };
+
+        params[key].lastRequestParams = {
+            ...search.lastRequestParams,
+            ...payloadParam
+        }
+    });
+
+    return params;
+};
+
 export default function(state = initialState, action) {
     switch (action.type) {
     case MAIN.ACTIONS.PREVIEW:
@@ -33,23 +51,9 @@ export default function(state = initialState, action) {
         return {...state, previewItem: null};
 
     case MAIN.ACTIONS.REQUEST:
-        let params = cloneDeep(state.search);
-        Object.keys(action.payload).forEach((key) => {
-            const payloadParam = get(action.payload, key, {});
-            params[key] = {
-                ...params[key],
-                ...payloadParam
-            };
-
-            params[key].lastRequestParams = {
-                ...search.lastRequestParams,
-                ...payloadParam
-            }
-        });
-
         return {
             ...state,
-            search: params
+            search: modifyParams(state, action)
         };
     default:
         return state;

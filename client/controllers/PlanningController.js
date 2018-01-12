@@ -6,6 +6,7 @@ import * as actions from '../actions';
 import {locks} from '../actions';
 import {PlanningApp} from '../components';
 import {WORKSPACE} from '../constants';
+import {isEqual} from 'lodash';
 
 PlanningController.$inject = [
     '$element',

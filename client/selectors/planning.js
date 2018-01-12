@@ -1,14 +1,10 @@
 import {createSelector} from 'reselect';
 import {get, sortBy} from 'lodash';
-import moment from 'moment';
 import {isItemLockedInThisSession} from '../utils';
 import {session} from './general';
 import {planningUtils} from '../utils';
-import {
-    filterPlanningKeyword, getCurrentAgenda, getCurrentAgendaId, getPlanningSearch,
-} from './planning_old';
+import {getCurrentAgenda, getCurrentAgendaId, getPlanningSearch} from './planning_old';
 import {AGENDA, SPIKED_STATE} from '../constants';
-
 
 const storedEvents = (state) => get(state, 'events.events', {});
 
@@ -59,15 +55,14 @@ export const isCurrentPlanningLockedInThisSession = createSelector(
 );
 
 export const getPlanningFilterParams = createSelector(
-    [getCurrentAgendaId, getCurrentAgenda, getPlanningSearch,
-        filterPlanningKeyword],
-    (agendaId, agenda, planningSearch, filterKeyword) => {
+    [getCurrentAgendaId, getCurrentAgenda, getPlanningSearch],
+    (agendaId, agenda, planningSearch) => {
         const params = {
             noAgendaAssigned: agendaId === AGENDA.FILTER.NO_AGENDA_ASSIGNED,
             agendas: agenda ? [agenda._id] : null,
             advancedSearch: get(planningSearch, 'advancedSearch', {}),
             spikeState: get(planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED),
-            fulltext: filterKeyword,
+            page: 1
         };
 
         return params;

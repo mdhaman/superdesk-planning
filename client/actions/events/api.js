@@ -13,8 +13,11 @@ import main from '../main'
 /**
  * Action dispatcher to load a series of recurring events into the local store.
  * This does not update the list of visible Events
- * @param rid
- * @param spikeState
+ * @param {string} rid
+ * @param {string} spikeState
+ * @param {int} page - The page number to fetch
+ * @param {int} maxResults - The number to events per page
+ * @param {boolean} loadToStore - To load events into store
  */
 const loadEventsByRecurrenceId = (
     rid,
@@ -29,6 +32,7 @@ const loadEventsByRecurrenceId = (
             spikeState: spikeState,
             page: page,
             maxResults: maxResults,
+            onlyFuture: false
         }))
             .then((items) => {
                 if (loadToStore) {
@@ -87,8 +91,8 @@ const getCriteria = (
         advancedSearch = {},
         fulltext,
         recurrenceId,
-        startDateGreaterThan,
         spikeState = SPIKED_STATE.NOT_SPIKED,
+        onlyFuture = true
     }
 ) => {
     let query = {};
@@ -108,15 +112,6 @@ const getCriteria = (
             condition: () => (recurrenceId),
             do: () => {
                 must.push({term: {recurrence_id: recurrenceId}});
-            },
-        },
-        {
-            condition: () => (startDateGreaterThan),
-            do: () => {
-                filter.range = {
-                    ...get(filter, 'range', {}),
-                    'dates.start': {gt: startDateGreaterThan},
-                };
             },
         },
         {
@@ -209,8 +204,8 @@ const getCriteria = (
         }
     });
 
-    // default filter
-    if (isEqual(filter, {}) && isEqual(must, []) && isEqual(mustNot, [])) {
+    // if advanced search dates are specified and onlyfuture events
+    if (!get(advancedSearch, 'dates' && onlyFuture)) {
         filter.range = {'dates.end': {gte: 'now/d'}};
     }
 
@@ -240,9 +235,10 @@ const getCriteria = (
  * @param {object} fulltext - Full text search parameters
  * @param {Array} ids - An array of Event IDs to fetch
  * @param {string} recurrenceId - The recurrence_id to fetch recurring events
- * @param {date} startDateGreaterThan - Start date range
+ * @param {string} spikeState - The item state to filter by
+ * @param {boolean} onlyFuture - Get future events. Onlyfuture is ignored if advancedSearch.dates specified.
  * @param {int} page - The page number to fetch
- * @param {string} state - The item state to filter by
+ * @param {int} maxResults - The number to events per page
  * @return arrow function
  */
 const query = (
@@ -251,10 +247,10 @@ const query = (
         fulltext,
         ids,
         recurrenceId,
-        startDateGreaterThan,
+        spikeState = SPIKED_STATE.NOT_SPIKED,
+        onlyFuture = true,
         page = 1,
         maxResults = 25,
-        spikeState = SPIKED_STATE.NOT_SPIKED,
     }
 ) => (
     (dispatch, getState, {api}) => {
@@ -289,8 +285,8 @@ const query = (
                 advancedSearch,
                 fulltext,
                 recurrenceId,
-                startDateGreaterThan,
-                spikeState
+                spikeState,
+                onlyFuture
             });
 
         // Query the API and sort by date
@@ -548,6 +544,7 @@ const silentlyFetchEventsById = (ids, spikeState = SPIKED_STATE.NOT_SPIKED, save
                     // distinct ids
                     ids: ids.filter((v, i, a) => (a.indexOf(v) === i)),
                     spikeState: spikeState,
+                    onlyFuture: false
                 }))
                     .then(
                         (items) => resolve(items),

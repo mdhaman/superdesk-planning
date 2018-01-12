@@ -44,6 +44,6 @@ export const lastRequestParams = createSelector(
 export const fullText = createSelector(
     [activeFilter, searchParams],
     (filter, params) => {
-        return get(params, `${filter}.fullText`, {});
+        return get(params, `${filter}.fulltext`, '');
     }
 );

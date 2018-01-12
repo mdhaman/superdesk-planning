@@ -3,6 +3,8 @@ import {SPIKED_STATE} from '../../constants';
 import eventsApi from '../events/api';
 import planningApi from '../planning/api';
 import {getTimeZoneOffset, planningUtils, eventUtils} from '../../utils';
+import * as selectors from '../../selectors';
+import eventsUi from '../events/ui';
 
 /**
  * Action Dispatcher for query the api for events and planning combined view
@@ -104,10 +106,37 @@ const query = ({
     }
 );
 
+/**
+ * Action Dispatcher to re-fetch the current list of planning
+ * It achieves this by performing a fetch using the params from
+ * the store value `planning.lastRequestParams`
+ */
+const refetch = (page = 1, results = {events: [], planning: []}) => (
+    (dispatch, getState) => {
+        const prevParams = selectors.main.lastRequestParams(getState());
+        let currentPage = page;
+        let params = {
+            ...prevParams,
+            currentPage
+        };
+
+        return dispatch(self.query(params))
+            .then((items) => {
+                results.events = results.events.concat(items.events);
+                results.planning = results.planning.concat(items.planning);
+                currentPage++;
+                if (get(prevParams, 'page', 1) >= currentPage) {
+                    return dispatch(self.refetch(currentPage, results));
+                }
+                return Promise.resolve(results);
+            }, (error) => (Promise.reject(error)));
+    }
+);
 
 // eslint-disable-next-line consistent-this
 const self = {
-    query
+    query,
+    refetch
 };
 
 export default self;
