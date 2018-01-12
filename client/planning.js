@@ -144,6 +144,9 @@ class PlanningApp extends React.Component {
                         addEvent={this.addEvent}
                         addPlanning={this.addPlanning}
                         openAgendas={this.props.openAgendas}
+                        value={this.props.fullText}
+                        search={this.props.search}
+                        activeFilter={this.props.activeFilter}
                     />
                     <FiltersBar
                         filterPanelOpen={this.state.filtersOpen}
@@ -225,7 +228,9 @@ PlanningApp.propTypes = {
     closePreview: PropTypes.func.isRequired,
     showRelatedPlannings: PropTypes.func,
     relatedPlanningsInList: PropTypes.object,
-    loadMore: PropTypes.func
+    loadMore: PropTypes.func,
+    fullText: PropTypes.string,
+    search: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state) => ({
@@ -241,7 +246,8 @@ const mapStateToProps = (state) => ({
     currentAgendaId: selectors.getCurrentAgendaId(state),
     session: selectors.getSessionDetails(state),
     privileges: selectors.getPrivileges(state),
-    relatedPlanningsInList: selectors.eventsAndPlanning.getRelatedPlanningsInList(state)
+    relatedPlanningsInList: selectors.eventsAndPlanning.getRelatedPlanningsInList(state),
+    fullText: selectors.main.fullText(state)
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -280,7 +286,8 @@ const mapDispatchToProps = (dispatch) => ({
     [PLANNING.ITEM_ACTIONS.CANCEL_ALL_COVERAGE.actionName]:
         (planning) => dispatch(actions.planning.ui.openCancelAllCoverageModal(planning)),
     showRelatedPlannings: (event) => dispatch(actions.eventsPlanning.ui.showRelatedPlannings(event)),
-    loadMore: (filterType) => dispatch(actions.main.loadMore(filterType))
+    loadMore: (filterType) => dispatch(actions.main.loadMore(filterType)),
+    search:(searchText) => dispatch(actions.main.search(searchText))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlanningApp);

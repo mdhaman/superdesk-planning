@@ -52,12 +52,3 @@ export const getRelatedPlanningsInList = createSelector(
         return relatedPlannings;
     }
 );
-
-
-export const getEventsPlaningFilterParams = createSelector(
-    [getCurrentSearch],
-    (search) => ({
-        fulltext: null,
-        advancedSearch: search,
-    })
-);

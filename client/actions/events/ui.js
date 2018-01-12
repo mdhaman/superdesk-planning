@@ -33,9 +33,7 @@ const fetchEvents = (params = {
                 dispatch(eventsApi.receiveEvents(items));
                 dispatch(self.setEventsList(items.map((e) => e._id)));
                 // update the url (deep linking)
-                $timeout(() => (
-                    $location.search('searchEvent', JSON.stringify(params))
-                ), 0, false);
+                $timeout(() => $location.search('searchParams', JSON.stringify(params)));
                 return items;
             });
     }
