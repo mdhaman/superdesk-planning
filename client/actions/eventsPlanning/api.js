@@ -4,7 +4,6 @@ import eventsApi from '../events/api';
 import planningApi from '../planning/api';
 import {getTimeZoneOffset, planningUtils, eventUtils} from '../../utils';
 import * as selectors from '../../selectors';
-import eventsUi from '../events/ui';
 
 /**
  * Action Dispatcher for query the api for events and planning combined view

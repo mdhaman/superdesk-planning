@@ -1,20 +1,19 @@
 import {createSelector} from 'reselect';
-import {get, sortBy, cloneDeep} from 'lodash';
-import moment from 'moment';
+import {get, cloneDeep} from 'lodash';
 import {isItemLockedInThisSession} from '../utils';
 import {session} from './general';
 import {planningUtils} from '../utils';
-import {getCurrentAgenda, getCurrentAgendaId, getPlanningSearch} from './planning_old';
 import {AGENDA, SPIKED_STATE} from '../constants';
 
 const storedEvents = (state) => get(state, 'events.events', {});
 
 export const storedPlannings = (state) => get(state, 'planning.plannings', {});
 export const planIdsInList = (state) => get(state, 'planning.planningsInList', []);
-
 export const agendas = (state) => get(state, 'agenda.agendas', []);
 export const currentAgendaId = (state) => get(state, 'agenda.currentAgendaId', null);
 export const currentPlanningId = (state) => get(state, 'planning.currentPlanningId');
+export const currentSearch = (state) => get(state, 'main.PLANNING.currentSearch');
+
 
 export const currentPlanning = createSelector(
     [currentPlanningId, storedPlannings],
@@ -56,8 +55,8 @@ export const isCurrentPlanningLockedInThisSession = createSelector(
 );
 
 export const getPlanningFilterParams = createSelector(
-    [getCurrentAgendaId, getPlanningSearch],
-    (agendaId, planningSearch) => {
+    [currentAgendaId, currentSearch],
+    (agendaId, currentSearch) => {
         let agendas = null;
 
         if (agendaId && agendaId !== AGENDA.FILTER.NO_AGENDA_ASSIGNED &&
@@ -68,8 +67,8 @@ export const getPlanningFilterParams = createSelector(
         const params = {
             noAgendaAssigned: agendaId === AGENDA.FILTER.NO_AGENDA_ASSIGNED,
             agendas: agendas,
-            advancedSearch: get(planningSearch, 'advancedSearch', {}),
-            spikeState: get(planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED),
+            advancedSearch: get(currentSearch, 'advancedSearch', {}),
+            spikeState: get(currentSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED),
             page: 1
         };
 

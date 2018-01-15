@@ -1,7 +1,7 @@
 import * as selectors from '../selectors';
 import {SubmissionError} from 'redux-form';
 import {cloneDeep, pick, get} from 'lodash';
-import {PRIVILEGES, AGENDA, MODALS, MAIN} from '../constants';
+import {PRIVILEGES, AGENDA, MODALS} from '../constants';
 import {checkPermission, getErrorMessage, isItemSpiked} from '../utils';
 import {planning, showModal} from './index';
 
@@ -77,7 +77,7 @@ const receiveAgendas = (agendas) => ({
  * @param {string} agendaId - The ID of the Agenda
  * @return arrow function
  */
-const selectAgenda = (agendaId, params={}) => (
+const selectAgenda = (agendaId, params = {}) => (
     (dispatch, getState, {$timeout, $location}) => {
         // save in store selected agenda
         dispatch({
@@ -277,7 +277,7 @@ const fetchSelectedAgendaPlannings = (params = {}) => (
         const filters = {
             ...selectors.planning.getPlanningFilterParams(getState()),
             ...params
-        }
+        };
 
         return dispatch(planning.ui.fetchToList(filters))
             .then((result) => {

@@ -465,6 +465,7 @@ const getPlanningByDate = (plansInList, events) => {
             }
 
             const clonedPlan = cloneDeep(plan);
+
             clonedPlan._sortDate = dates[date];
             days[date].push(clonedPlan);
         }

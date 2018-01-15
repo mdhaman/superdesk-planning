@@ -4,18 +4,13 @@ import {get} from 'lodash';
 
 import {Label} from '../';
 import {EVENTS, MAIN} from '../../constants';
-import {Item, Border, ItemType, PubStatus, Column, Row, ActionMenu, NestedItem} from '../UI/List';
-import {PlanningItem} from '../Planning';
+import {Item, Border, ItemType, PubStatus, Column, Row, ActionMenu} from '../UI/List';
 import {EventDateTime} from './';
 import {ItemActionsMenu} from '../index';
-import {eventUtils, getItemWorkflowStateLabel, gettext} from '../../utils';
+import {eventUtils, getItemWorkflowStateLabel} from '../../utils';
 
 
 export class EventItem extends React.PureComponent {
-    constructor(props) {
-        super(props);
-    }
-
     render() {
         const {item, onItemClick, lockedItems, dateFormat, timeFormat,
             session, privileges, activeFilter, toggleRelatedPlanning} = this.props;

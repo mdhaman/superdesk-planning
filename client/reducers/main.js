@@ -20,8 +20,10 @@ const initialState = {
 
 const modifyParams = (state, action) => {
     let params = cloneDeep(state.search) || {};
+
     Object.keys(action.payload).forEach((key) => {
         const payloadParam = get(action.payload, key, {});
+
         params[key] = {
             ...params[key],
             ...payloadParam
@@ -30,7 +32,7 @@ const modifyParams = (state, action) => {
         params[key].lastRequestParams = {
             ...search.lastRequestParams,
             ...payloadParam
-        }
+        };
     });
 
     return params;

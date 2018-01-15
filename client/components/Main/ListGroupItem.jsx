@@ -134,7 +134,7 @@ export class ListGroupItem extends React.Component {
                         showRelatedPlannings={this.props.showRelatedPlannings}
                         relatedPlanningsInList={this.props.relatedPlanningsInList}
                     />
-                )
+                );
             }
 
             return (

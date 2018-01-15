@@ -2,8 +2,7 @@ import {get} from 'lodash';
 import * as selectors from '../selectors';
 import {SubmissionError} from 'redux-form';
 import {fetchSelectedAgendaPlannings} from './index';
-import {EventUpdateMethods} from '../components/fields';
-import {EVENTS, SPIKED_STATE, PUBLISHED_STATE, MAIN} from '../constants';
+import {EVENTS, SPIKED_STATE, MAIN} from '../constants';
 import {eventUtils, getErrorMessage, retryDispatch} from '../utils';
 
 import eventsApi from './events/api';

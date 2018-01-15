@@ -1,4 +1,4 @@
-import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE, MAIN} from '../../constants';
+import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE} from '../../constants';
 import {EventUpdateMethods} from '../../components/fields';
 import {get, isEqual, cloneDeep, pickBy, isNil} from 'lodash';
 import * as selectors from '../../selectors';
@@ -8,7 +8,6 @@ import moment from 'moment';
 import planningApi from '../planning/api';
 import eventsUi from './ui';
 import locationApi from '../locations';
-import main from '../main'
 
 /**
  * Action dispatcher to load a series of recurring events into the local store.

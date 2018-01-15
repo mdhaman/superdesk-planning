@@ -10,8 +10,7 @@ import {
     TOOLTIPS,
     ASSIGNMENTS,
     ITEM_TYPE,
-    GENERIC_ITEM_ACTIONS,
-    MAIN
+    GENERIC_ITEM_ACTIONS
 } from '../constants/index';
 import * as testData from './testData';
 import {gettext} from './gettext';

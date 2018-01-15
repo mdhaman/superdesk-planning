@@ -22,7 +22,7 @@ const fetch = (params = {}) => (
                 dispatch(self.setInList(results));
                 // update the url (deep linking)
                 $timeout(() => $location.search('searchParams', JSON.stringify(params)));
-                return results
+                return results;
             });
     }
 );
@@ -50,14 +50,12 @@ const loadMore = () => (
 );
 
 const refetch = () => (
-    (dispatch, getState) => {
-        return dispatch(eventsAndPlanningApi.refetch())
-            .then((results) => {
-                dispatch(eventsApi.receiveEvents(results.events));
-                dispatch(planningApi.receivePlannings(results.planning));
-                dispatch(self.addToList(results));
-            });
-    }
+    (dispatch, getState) => dispatch(eventsAndPlanningApi.refetch())
+        .then((results) => {
+            dispatch(eventsApi.receiveEvents(results.events));
+            dispatch(planningApi.receivePlannings(results.planning));
+            dispatch(self.addToList(results));
+        })
 );
 
 

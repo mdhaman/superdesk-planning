@@ -287,7 +287,7 @@ const mapDispatchToProps = (dispatch) => ({
         (planning) => dispatch(actions.planning.ui.openCancelAllCoverageModal(planning)),
     showRelatedPlannings: (event) => dispatch(actions.eventsPlanning.ui.showRelatedPlannings(event)),
     loadMore: (filterType) => dispatch(actions.main.loadMore(filterType)),
-    search:(searchText) => dispatch(actions.main.search(searchText))
+    search: (searchText) => dispatch(actions.main.search(searchText))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlanningApp);

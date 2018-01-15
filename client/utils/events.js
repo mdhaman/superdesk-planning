@@ -468,6 +468,7 @@ const getEventsByDate = (events) => {
         }
 
         let evt = cloneDeep(event);
+
         evt._sortDate = eventDate;
 
         days[eventDate].push(evt);
@@ -514,7 +515,6 @@ const getEventsPlanningByDate = (data) => {
     let sortable = [];
 
     days.forEach((day) => {
-
         const events = sortBy(get(eventsByDate, `${day}.events`, [])
             .map((e) => ({
                 _id: e._id,

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {get} from 'lodash';
-import {EventItem} from '.'
-import {PlanningItem} from '../Planning'
+import {EventItem} from '.';
+import {PlanningItem} from '../Planning';
 import {NestedItem} from '../UI/List';
 import {gettext} from '../../utils';
 
@@ -32,10 +32,10 @@ export class EventItemWithPlanning extends React.Component {
             get(this.props.relatedPlanningsInList, item._id, []).map((plan, index) => {
                 const planningProps = {
                     ...this.props.planningProps,
-                    item: plan,
-                    key: index
-                }
-                return (<PlanningItem {...planningProps} />);
+                    item: plan
+                };
+
+                return (<PlanningItem key={index} {...planningProps} />);
             })
         );
 
@@ -43,7 +43,7 @@ export class EventItemWithPlanning extends React.Component {
             ...this.props.eventProps,
             toggleRelatedPlanning: this.toggleRelatedPlanning,
             relatedPlanningText: relatedPlanningText
-        }
+        };
 
         const eventItem = <EventItem {...eventProps} />;
 

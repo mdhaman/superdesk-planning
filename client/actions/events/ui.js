@@ -620,23 +620,21 @@ const unpublish = (event) => (
 /**
  * Action to load more events
  */
-const loadMore = () => {
-    return (dispatch, getState) => {
-        const previousParams = selectors.main.lastRequestParams(getState());
-        const params = {
-            ...previousParams,
-            page: previousParams.page + 1,
-        };
-
-        dispatch(self.requestEvents(params));
-
-        return dispatch(eventsApi.query(params))
-            .then((items) => {
-                dispatch(eventsApi.receiveEvents(items));
-                dispatch(self.addToList(items.map((e) => e._id)));
-            });
+const loadMore = () => (dispatch, getState) => {
+    const previousParams = selectors.main.lastRequestParams(getState());
+    const params = {
+        ...previousParams,
+        page: previousParams.page + 1,
     };
-}
+
+    dispatch(self.requestEvents(params));
+
+    return dispatch(eventsApi.query(params))
+        .then((items) => {
+            dispatch(eventsApi.receiveEvents(items));
+            dispatch(self.addToList(items.map((e) => e._id)));
+        });
+};
 
 const requestEvents = (params = {}) => ({
     type: MAIN.ACTIONS.REQUEST,

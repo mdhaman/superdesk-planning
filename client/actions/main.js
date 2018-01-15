@@ -95,6 +95,7 @@ const unpublish = (item) => (
         }
 
         const errMessage = gettext('Failed to unpublish, could not find the item type!');
+
         notify.error(errMessage);
         return Promise.reject(errMessage);
     }
@@ -161,6 +162,7 @@ const filter = (ftype = null) => (
         const previousParams = omit(lastRequestParams(getState()) || {}, 'page');
         const searchParams = omit(JSON.parse($location.search().searchParams || '{}'), 'page');
         let params = previousParams;
+
         if (filterType === $location.search().filter && isEmpty(previousParams)) {
             params = searchParams;
         }
@@ -172,7 +174,6 @@ const filter = (ftype = null) => (
             dispatch(planningUi.clearList());
 
             promise = dispatch(eventsUi.fetchEvents(params));
-
         } else if (filterType === MAIN.FILTERS.PLANNING) {
             dispatch(eventsPlanningUi.clearList());
             dispatch(eventsUi.clearList());
@@ -183,7 +184,6 @@ const filter = (ftype = null) => (
             } else {
                 promise = dispatch(fetchSelectedAgendaPlannings(params));
             }
-
         } else if (filterType === MAIN.FILTERS.COMBINED) {
             dispatch(eventsUi.clearList());
             dispatch(planningUi.clearList());
@@ -191,7 +191,7 @@ const filter = (ftype = null) => (
             promise = dispatch(eventsPlanningUi.fetch(params));
         }
 
-        return promise
+        return promise;
     }
 );
 
@@ -199,6 +199,7 @@ const loadMore = (filterType) => (
     (dispatch, getState, {notify}) => {
         if (!filterType) {
             const errMessage = gettext('Cannot load more date.');
+
             notify.error(errMessage);
             return Promise.reject(errMessage);
         }
@@ -222,6 +223,7 @@ const search = (searchText) => (
 
         if (!filterType) {
             const errMessage = gettext('Cannot search as filter type is not selected.');
+
             notify.error(errMessage);
             return Promise.reject(errMessage);
         }
@@ -241,7 +243,7 @@ const search = (searchText) => (
             promise = dispatch(eventsPlanningUi.fetch(params));
         }
 
-        return promise
+        return promise;
     }
 );
 

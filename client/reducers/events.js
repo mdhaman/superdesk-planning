@@ -4,8 +4,6 @@ import {EVENTS, RESET_STORE, INIT_STORE, LOCKS, SPIKED_STATE} from '../constants
 import {createReducer, getItemType} from '../utils';
 import {WORKFLOW_STATE, MAIN, ITEM_TYPE} from '../constants';
 
-const initialLastRequest = {page: 1};
-
 const initialState = {
     events: {},
     eventsInList: [],

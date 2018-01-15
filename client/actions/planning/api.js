@@ -12,8 +12,7 @@ import {
     PUBLISHED_STATE,
     SPIKED_STATE,
     WORKFLOW_STATE,
-    MODALS,
-    MAIN
+    MODALS
 } from '../../constants';
 
 /**

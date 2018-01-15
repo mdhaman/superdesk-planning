@@ -4,49 +4,49 @@ import {gettext} from '../../utils';
 import {KEYCODES} from '../../constants';
 
 class SearchBox extends React.Component {
-     constructor(props) {
-         super(props);
-         this.state = { inputValue: this.props.value };
-         this.onChangeHandler = this.onChangeHandler.bind(this);
-         this.onKeyPressHandler = this.onKeyPressHandler.bind(this);
-     }
+    constructor(props) {
+        super(props);
+        this.state = {inputValue: this.props.value};
+        this.onChangeHandler = this.onChangeHandler.bind(this);
+        this.onKeyPressHandler = this.onKeyPressHandler.bind(this);
+    }
 
-     componentWillReceiveProps(nextProps) {
-         if (this.props.value !== nextProps.value &&
+    componentWillReceiveProps(nextProps) {
+        if (this.props.value !== nextProps.value &&
          this.props.activeFilter !== nextProps.activeFilter) {
-             this.setState({ inputValue: nextProps.value });
-         }
-     }
+            this.setState({inputValue: nextProps.value});
+        }
+    }
 
-     onChangeHandler(evt) {
-         this.setState({inputValue: evt.target.value});
-     }
+    onChangeHandler(evt) {
+        this.setState({inputValue: evt.target.value});
+    }
 
-     onKeyPressHandler(evt) {
-        if(evt.charCode === KEYCODES.ENTER) {
+    onKeyPressHandler(evt) {
+        if (evt.charCode === KEYCODES.ENTER) {
             this.props.search(this.state.inputValue);
         }
-     }
+    }
 
-     render() {
-         return (
-             <div className="sd-searchbar sd-searchbar--focused">
-                 <label htmlFor="search-input" className="sd-searchbar__icon" />
-                 <input type="text" id="search-input"
-                     autoComplete="off"
-                     className="sd-searchbar__input"
-                     placeholder={gettext(this.props.label)}
-                     value={this.state.inputValue}
-                     onChange={this.onChangeHandler}
-                     onKeyPress={this.onKeyPressHandler}
-                 />
-                 <button className="sd-searchbar__search-btn"
-                     onClick={()=> this.props.search(this.state.inputValue)}>
-                     <i className="big-icon--chevron-right" />
-                 </button>
-             </div>
+    render() {
+        return (
+            <div className="sd-searchbar sd-searchbar--focused">
+                <label htmlFor="search-input" className="sd-searchbar__icon" />
+                <input type="text" id="search-input"
+                    autoComplete="off"
+                    className="sd-searchbar__input"
+                    placeholder={gettext(this.props.label)}
+                    value={this.state.inputValue}
+                    onChange={this.onChangeHandler}
+                    onKeyPress={this.onKeyPressHandler}
+                />
+                <button className="sd-searchbar__search-btn"
+                    onClick={() => this.props.search(this.state.inputValue)}>
+                    <i className="big-icon--chevron-right" />
+                </button>
+            </div>
         );
-     }
+    }
 }
 
 SearchBox.propTypes = {
