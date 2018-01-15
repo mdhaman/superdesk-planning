@@ -516,6 +516,7 @@ const saveWithConfirmation = (event, save = true, publish = false) => (
         return dispatch(eventsApi.query({
             recurrenceId: originalEvent.recurrence_id,
             maxResults: maxRecurringEvents,
+            onlyFuture: false
         }))
             .then((relatedEvents) => (
                 dispatch(showModal({

@@ -8,7 +8,7 @@ import {
     ASSIGNMENTS,
     PUBLISHED_STATE,
 } from '../constants/index';
-import {get, isNil, uniq, sortBy} from 'lodash';
+import {get, isNil, uniq, sortBy, isEmpty, cloneDeep} from 'lodash';
 import {
     getItemWorkflowState,
     isItemLockedInThisSession,
@@ -442,28 +442,32 @@ const getPlanningByDate = (plansInList, events) => {
     const days = {};
 
     plansInList.forEach((plan) => {
-        const dates = new Set();
+        const dates = {};
+        let groupDate = null;
 
         plan.event = get(events, get(plan, 'event_item'));
-        plan.coverages.forEach((coverage) =>
-            dates.add(
-                moment(
-                    get(coverage, 'planning.scheduled', plan._planning_date)
-                ).format('YYYY-MM-DD')
-            )
-        );
+        plan.coverages.forEach((coverage) => {
+            groupDate = moment(get(coverage, 'planning.scheduled', plan._planning_date));
 
-        if (dates.size < 1) {
-            dates.add(moment(plan._planning_date).format('YYYY-MM-DD'));
+            if (!get(dates, groupDate.format('YYYY-MM-DD'))) {
+                dates[groupDate.format('YYYY-MM-DD')] = groupDate;
+            }
+        });
+
+        if (isEmpty(dates)) {
+            groupDate = moment(plan._planning_date);
+            dates[groupDate.format('YYYY-MM-DD')] = groupDate;
         }
 
-        dates.forEach((date) => {
+        for (let date in dates) {
             if (!days[date]) {
                 days[date] = [];
             }
 
-            days[date].push(plan);
-        });
+            const clonedPlan = cloneDeep(plan);
+            clonedPlan._sortDate = dates[date];
+            days[date].push(clonedPlan);
+        }
     });
 
     let sortable = [];
@@ -471,7 +475,7 @@ const getPlanningByDate = (plansInList, events) => {
     for (let day in days)
         sortable.push({
             date: day,
-            events: days[day],
+            events: sortBy(days[day], [(e) => e._sortDate]),
         });
 
     return sortBy(sortable, [(e) => e.date]);

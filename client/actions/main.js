@@ -179,7 +179,6 @@ const filter = (ftype = null) => (
             const searchAgenda = $location.search().agenda;
 
             if (searchAgenda) {
-                params.agendas = [searchAgenda];
                 promise = dispatch(selectAgenda(searchAgenda, params));
             } else {
                 promise = dispatch(fetchSelectedAgendaPlannings(params));

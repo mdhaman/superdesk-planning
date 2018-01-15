@@ -22,7 +22,7 @@ import {
 } from './index';
 import moment from 'moment';
 import RRule from 'rrule';
-import {get, map, isNil, sortBy, keyBy, uniq} from 'lodash';
+import {get, map, isNil, sortBy, keyBy, uniq, cloneDeep} from 'lodash';
 import {EventUpdateMethods} from '../components/fields';
 
 
@@ -467,7 +467,10 @@ const getEventsByDate = (events) => {
             days[eventDate] = [];
         }
 
-        days[eventDate].push(event);
+        let evt = cloneDeep(event);
+        evt._sortDate = eventDate;
+
+        days[eventDate].push(evt);
     }
 
     sortedEvents.forEach((event) => {
@@ -494,8 +497,9 @@ const getEventsByDate = (events) => {
 
     for (let day in days) sortable.push({
         date: day,
-        events: days[day],
+        events: sortBy(days[day], [(e) => (e._sortDate)]),
     });
+
     return sortBy(sortable, [(e) => (e.date)]);
 };
 
@@ -510,11 +514,25 @@ const getEventsPlanningByDate = (data) => {
     let sortable = [];
 
     days.forEach((day) => {
+
+        const events = sortBy(get(eventsByDate, `${day}.events`, [])
+            .map((e) => ({
+                _id: e._id,
+                _type: e._type,
+                _sortDate: e._sortDate
+            }))
+            .concat(
+                get(planningByDate, `${day}.events`, [])
+                    .map((e) => ({
+                        _id: e._id,
+                        _type: e._type,
+                        _sortDate: e._sortDate
+                    }))
+            ), '_sortDate');
+
         sortable.push({
             date: day,
-            events: get(eventsByDate, `${day}.events`, [])
-                .map((e) => ({_id: e._id, _type: e._type}))
-                .concat(get(planningByDate, `${day}.events`, []).map((e) => ({_id: e._id, _type: e._type})))
+            events: events
         });
     });
     return sortBy(sortable, [(e) => (e.date)]);

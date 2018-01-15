@@ -56,11 +56,18 @@ export const isCurrentPlanningLockedInThisSession = createSelector(
 );
 
 export const getPlanningFilterParams = createSelector(
-    [getCurrentAgendaId, getCurrentAgenda, getPlanningSearch],
-    (agendaId, agenda, planningSearch) => {
+    [getCurrentAgendaId, getPlanningSearch],
+    (agendaId, planningSearch) => {
+        let agendas = null;
+
+        if (agendaId && agendaId !== AGENDA.FILTER.NO_AGENDA_ASSIGNED &&
+            agendaId !== AGENDA.FILTER.ALL_PLANNING) {
+            agendas = [agendaId];
+        }
+
         const params = {
             noAgendaAssigned: agendaId === AGENDA.FILTER.NO_AGENDA_ASSIGNED,
-            agendas: agenda ? [agenda._id] : null,
+            agendas: agendas,
             advancedSearch: get(planningSearch, 'advancedSearch', {}),
             spikeState: get(planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED),
             page: 1

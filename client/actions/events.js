@@ -133,7 +133,7 @@ const onRecurringEventCreated = (_e, data) => (
             // a getById). So continue for 5 times, waiting 1 second between each request
             // until we receive the new events or an error occurs
             return dispatch(retryDispatch(
-                eventsApi.query({recurrenceId: data.item}),
+                eventsApi.query({recurrenceId: data.item, onlyFuture: false}),
                 (events) => get(events, 'length', 0) > 0,
                 5,
                 1000

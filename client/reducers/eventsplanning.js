@@ -17,6 +17,8 @@ const modifyEventsPlanning = (state, action) => {
         }
         eventsPlanning[eventDate].events = uniqBy(eventsPlanningToAdd[eventDate].events
             .concat(eventsPlanning[eventDate].events || []), '_id');
+
+        eventsPlanning[eventDate].events = sortBy(eventsPlanning[eventDate].events, '_sortDate');
     });
 
     return sortBy(Object.values(eventsPlanning), [(e) => (e.date)]);

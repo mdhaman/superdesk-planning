@@ -5,11 +5,11 @@ import {storedPlannings} from './planning';
 
 export const getEventsPlanningList = (state) => get(state, 'eventsPlanning.eventsAndPlanningInList', []);
 export const getRelatedPlanningsList = (state) => get(state, 'eventsPlanning.relatedPlannings', {});
-export const getCurrentSearch = (state) =>
-    get(state, 'eventsPlanning.search.currentSearch', {});
-export const getPreviousRequestParams = (state) =>
-    get(state, 'eventsPlanning.lastRequestParams', {});
 
+/**
+ * Selector for Ordered Events and adHoc Planning.
+ * @type {Reselect.Selector<any, any>}
+ */
 export const orderedEventsPlanning = createSelector(
     [storedEvents, storedPlannings, getEventsPlanningList],
     (events, plannings, eventPlanningList) => {
@@ -22,11 +22,11 @@ export const orderedEventsPlanning = createSelector(
             };
 
             e.events.forEach((data) => {
-                if (data._type === 'events' && events[data._id]) {
+                if (data._type === 'events' && get(events, data._id)) {
                     group.events.push(events[data._id]);
                 }
 
-                if (data._type === 'planning' && plannings[data._id]) {
+                if (data._type === 'planning' && get(plannings, data._id)) {
                     group.events.push(plannings[data._id]);
                 }
             });
