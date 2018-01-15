@@ -18,7 +18,8 @@ from superdesk.errors import SuperdeskApiError
 from superdesk.metadata.utils import generate_guid
 from superdesk.metadata.item import GUID_NEWSML, ITEM_TYPE, metadata_schema
 from superdesk.notification import push_notification
-from apps.archive.common import set_original_creator, get_user
+from apps.auth import get_user, get_user_id
+from apps.archive.common import set_original_creator, get_auth
 from superdesk.users.services import current_user_has_privilege
 from superdesk.utc import utcnow
 from planning.common import UPDATE_SINGLE, UPDATE_FUTURE, UPDATE_ALL, UPDATE_METHODS, \
@@ -223,6 +224,16 @@ class EventsService(superdesk.Service):
         else:
             self._update_recurring_events(updates, original, update_method)
 
+    def on_updated(self, updates, original):
+        if original.get('lock_user') and 'lock_user' in updates and updates.get('lock_user') is None:
+            # when the event is unlocked by the patch.
+            push_notification(
+                'events:unlock',
+                item=str(original.get(config.ID_FIELD)),
+                user=str(get_user_id()), lock_session=str(get_auth().get('_id')),
+                etag=updates['_etag']
+            )
+
     def _update_single_event(self, updates, original):
         """Updates the metadata and occurrence of a single event.
 
@@ -292,6 +303,7 @@ class EventsService(superdesk.Service):
                 recurrence_id=str(original['recurrence_id']),
                 user=str(updates.get('version_creator', ''))
             )
+
             return
         # Otherwise we're modifying the recurring_rules for the event
         elif update_method in [UPDATE_FUTURE, UPDATE_ALL]:

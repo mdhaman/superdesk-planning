@@ -53,6 +53,7 @@ export class EventEditorComponent extends React.Component {
             users,
             timeFormat,
             dateFormat,
+            maxRecurrentEvents
         } = this.props;
 
         const existingEvent = !!get(diff, '_id');
@@ -118,6 +119,7 @@ export class EventEditorComponent extends React.Component {
                             onChange={this.onChange}
                             timeFormat={timeFormat}
                             dateFormat={dateFormat}
+                            maxRecurrentEvents={maxRecurrentEvents}
                         />
                     )}
 
@@ -236,6 +238,7 @@ EventEditorComponent.propTypes = {
     users: PropTypes.array,
     timeFormat: PropTypes.string.isRequired,
     dateFormat: PropTypes.string.isRequired,
+    maxRecurrentEvents: PropTypes.number
 };
 
 const mapStateToProps = (state) => ({
@@ -249,6 +252,7 @@ const mapStateToProps = (state) => ({
     users: selectors.getUsers(state),
     timeFormat: selectors.config.getTimeFormat(state),
     dateFormat: selectors.config.getDateFormat(state),
+    maxRecurrentEvents: selectors.config.getMaxRecurrentEvents(state)
 });
 
 export const EventEditor = connect(mapStateToProps)(EventEditorComponent);

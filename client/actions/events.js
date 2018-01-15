@@ -107,14 +107,8 @@ const toggleEventsList = () => (
 const onEventCreated = (_e, data) => (
     (dispatch, getState) => {
         if (data && data.item) {
-            dispatch(fetchEventById(data.item))
-                .then((event) => {
-                    if (selectors.main.activeFilter(getState) === MAIN.FILTERS.COMBINED) {
-                        const storedEvent = selectors.events.storedEvents(getState())[data.item];
-
-                        dispatch(eventsPlanningUi.addToList({events: [storedEvent]}));
-                    }
-                });
+            return dispatch(fetchEventById(data.item))
+                .then(() => dispatch(eventsPlanningUi.refetch()));
         }
     }
 );
@@ -141,6 +135,7 @@ const onRecurringEventCreated = (_e, data) => (
             // go ahead and refresh the current list of events
                 .then((items) => {
                     dispatch(eventsUi.refetchEvents());
+                    dispatch(eventsPlanningUi.refetch());
                     return Promise.resolve(items);
                 }, (error) => {
                     notify.error(getErrorMessage(
@@ -176,6 +171,8 @@ const onEventUpdated = (_e, data) => (
                         selectors.getStoredPlannings(getState()))) {
                         dispatch(fetchSelectedAgendaPlannings());
                     }
+
+                    dispatch(eventsPlanningUi.refetch());
                 });
         }
     }

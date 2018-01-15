@@ -4,6 +4,7 @@ import {getErrorMessage, getLock} from '../../utils';
 import * as selectors from '../../selectors';
 import {showModal, hideModal, events} from '../index';
 import {PLANNING, WORKFLOW_STATE, MODALS} from '../../constants';
+import eventsPlanning from '../eventsPlanning';
 
 /**
  * WS Action when a new Planning item is created
@@ -20,7 +21,8 @@ const onPlanningCreated = (_e, data) => (
                 ));
             }
 
-            return dispatch(planning.ui.refetch());
+            return dispatch(planning.ui.refetch())
+                .then(() => dispatch(eventsPlanning.ui.refetch()));
         }
 
         return Promise.resolve();
@@ -37,7 +39,8 @@ const onPlanningUpdated = (_e, data, refetch = true) => (
     (dispatch, getState, {notify}) => {
         if (get(data, 'item')) {
             if (refetch) {
-                return dispatch(planning.ui.refetch());
+                return dispatch(planning.ui.refetch())
+                    .then(() => dispatch(eventsPlanning.ui.refetch()));
             }
 
             // Otherwise send an Action to update the store
@@ -146,7 +149,8 @@ const onPlanningUnlocked = (_e, data) => (
 const onPlanningPublished = (_e, data) => (
     (dispatch) => {
         if (get(data, 'item')) {
-            return dispatch(planning.ui.refetch());
+            return dispatch(planning.ui.refetch())
+                .then(() => dispatch(eventsPlanning.ui.refetch()));
         }
 
         return Promise.resolve();

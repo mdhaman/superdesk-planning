@@ -23,7 +23,7 @@ import {
 import moment from 'moment';
 import RRule from 'rrule';
 import {get, map, isNil, sortBy, keyBy, uniq, cloneDeep} from 'lodash';
-import {EventUpdateMethods} from '../components/fields';
+import {EventUpdateMethods} from '../components/Events';
 
 
 /**
@@ -462,16 +462,16 @@ const getEventsByDate = (events) => {
     function addEventToDate(event, date) {
         let eventDate = date || event.dates.start;
 
-        eventDate = eventDate.format('YYYY-MM-DD');
-        if (!days[eventDate]) {
-            days[eventDate] = [];
+        let eventDateFormatted = eventDate.format('YYYY-MM-DD');
+        if (!days[eventDateFormatted]) {
+            days[eventDateFormatted] = [];
         }
 
         let evt = cloneDeep(event);
 
         evt._sortDate = eventDate;
 
-        days[eventDate].push(evt);
+        days[eventDateFormatted].push(evt);
     }
 
     sortedEvents.forEach((event) => {
@@ -483,7 +483,7 @@ const getEventsByDate = (events) => {
 
             for (let i = 1; i <= deltaDays; i++) {
                 //  clone the date
-                const newDate = moment(event.dates.start);
+                const newDate = moment(event.dates.start.format('YYYY-MM-DD'), 'YYYY-MM-DD');
 
                 newDate.add(i, 'days');
                 addEventToDate(event, newDate);

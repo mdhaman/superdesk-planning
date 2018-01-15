@@ -1,8 +1,8 @@
 import {EVENTS, SPIKED_STATE, WORKFLOW_STATE, PUBLISHED_STATE} from '../../constants';
-import {EventUpdateMethods} from '../../components/fields';
-import {get, isEqual, cloneDeep, pickBy, isNil} from 'lodash';
+import {EventUpdateMethods} from '../../components/Events';
+import {get, isEqual, cloneDeep, pickBy, isNil, isEmpty} from 'lodash';
 import * as selectors from '../../selectors';
-import {eventUtils, isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
+import {eventUtils, getTimeZoneOffset, isItemLockedInThisSession, sanitizeTextForQuery} from '../../utils';
 import moment from 'moment';
 
 import planningApi from '../planning/api';
@@ -172,6 +172,10 @@ const getCriteria = (
                     range['dates.end'] = {lte: advancedSearch.dates.end};
                 }
 
+                if (!isEmpty(range)) {
+                    range.time_zone = getTimeZoneOffset();
+                }
+
                 filter.range = range;
             },
         },
@@ -205,7 +209,7 @@ const getCriteria = (
 
     // if advanced search dates are specified and onlyfuture events
     if (!get(advancedSearch, 'dates' && onlyFuture)) {
-        filter.range = {'dates.end': {gte: 'now/d'}};
+        filter.range = {'dates.end': {gte: 'now/d', time_zone: getTimeZoneOffset()}};
     }
 
     switch (spikeState) {
