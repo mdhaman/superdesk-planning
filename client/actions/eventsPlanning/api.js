@@ -1,5 +1,5 @@
 import {pick, get} from 'lodash';
-import {SPIKED_STATE} from '../../constants';
+import {SPIKED_STATE, MAIN} from '../../constants';
 import eventsApi from '../events/api';
 import planningApi from '../planning/api';
 import {getTimeZoneOffset, planningUtils, eventUtils} from '../../utils';
@@ -112,6 +112,10 @@ const query = ({
  */
 const refetch = (page = 1, results = {events: [], planning: []}) => (
     (dispatch, getState) => {
+        if (selectors.main.activeFilter(getState()) !== MAIN.FILTERS.COMBINED) {
+            return Promise.resolve({});
+        }
+
         const prevParams = selectors.main.lastRequestParams(getState());
         let currentPage = page;
         let params = {

@@ -441,11 +441,6 @@ export const locks = {
 export const eventsInitialState = {
     events: {},
     eventsInList: [],
-    search: {
-        currentSearch: undefined,
-        advancedSearchOpened: false,
-    },
-    lastRequestParams: {page: 1},
     show: true,
     showEventDetails: null,
     highlightedEvent: null,
@@ -486,15 +481,9 @@ export const planningInitialState = {
     selectedItems: [],
     currentPlanningId: undefined,
     editorOpened: false,
-    planningsAreLoading: false,
     filterPlanningKeyword: null,
     readOnly: true,
     planningHistoryItems: [],
-    lastRequestParams: {page: 1},
-    search: {
-        currentSearch: undefined,
-        advancedSearchOpened: false,
-    },
 };
 
 export const templates = {templates: []};
@@ -767,6 +756,23 @@ export const main = {
     previewItem: null,
     editItem: null,
     filter: null,
+    search: {
+        EVENTS: {
+            lastRequestParams: {page: 1},
+            fulltext: undefined,
+            currentSearch: undefined
+        },
+        PLANNING: {
+            lastRequestParams: {page: 1},
+            fulltext: undefined,
+            currentSearch: undefined
+        },
+        COMBINED: {
+            lastRequestParams: {page: 1},
+            fulltext: undefined,
+            currentSearch: undefined
+        }
+    }
 };
 
 export const initialState = {

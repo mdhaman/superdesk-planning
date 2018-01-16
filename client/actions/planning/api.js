@@ -140,20 +140,6 @@ const getCriteria = ({
                         },
                     },
                 };
-
-                // must.push({
-                //     nested: {
-                //         path: '_planning_schedule',
-                //         filter: {
-                //             range: {
-                //                 '_planning_schedule.scheduled': {
-                //                     gte: 'now/d',
-                //                     time_zone: getTimeZoneOffset(),
-                //                 },
-                //             },
-                //         },
-                //     },
-                // });
             },
         },
         {
@@ -188,13 +174,6 @@ const getCriteria = ({
                     path: '_planning_schedule',
                     filter: {range: range},
                 };
-
-                // must.push({
-                //     nested: {
-                //         path: '_planning_schedule',
-                //         filter: {range: range},
-                //     },
-                // });
             },
         },
         {
@@ -297,7 +276,6 @@ const getCriteria = ({
  * @return Promise
  */
 const query = ({
-    eventIds,
     spikeState = SPIKED_STATE.BOTH,
     agendas,
     noAgendaAssigned = false,
@@ -308,33 +286,6 @@ const query = ({
     adHocPlanning = false,
 }) => (
     (dispatch, getState, {api}) => {
-        let must = [];
-
-        if (eventIds) {
-            let ids = Array.isArray(eventIds) ? eventIds : [eventIds];
-            const chunkSize = PLANNING.FETCH_IDS_CHUNK_SIZE;
-
-            if (ids.length <= chunkSize) {
-                must.push({terms: {event_item: ids}});
-            } else {
-                const requests = [];
-
-                for (let i = 0; i < Math.ceil(ids.length / chunkSize); i++) {
-                    const args = {
-                        ...arguments[0],
-                        eventIds: ids.slice(i * chunkSize, (i + 1) * chunkSize),
-                    };
-
-                    requests.push(dispatch(self.query(args)));
-                }
-
-                // Flatten responses and return a response-like object
-                return Promise.all(requests).then((responses) => (
-                    Array.prototype.concat(...responses)
-                ));
-            }
-        }
-
         let criteria = self.getCriteria({
             spikeState,
             agendas,
@@ -360,10 +311,6 @@ const query = ({
                 },
             },
         ];
-
-        if (eventIds) {
-            sort = [{_planning_date: {order: 'asc'}}];
-        }
 
         // Query the API
         return api('planning').query({
@@ -418,6 +365,7 @@ const fetch = (params = {}) => (
 const refetch = (page = 1, plannings = []) => (
     (dispatch, getState) => {
         const prevParams = selectors.main.lastRequestParams(getState());
+
         let params = {
             ...selectors.planning.getPlanningFilterParams(getState()),
             page,
@@ -549,36 +497,27 @@ const loadPlanning = (query, saveToStore = true) => (
 /**
  * Action dispatcher to load Planning items by ID from the API, and place them
  * in the local store. This does not update the list of visible Planning items
- * @param {Array, string} ids - Either an array of Planning IDs or a single Planning ID to fetch
+ * @param {string} id - a single Planning ID to fetch
  * @param {string} spikeState - Planning item's spiked state (SPIKED, NOT_SPIKED or BOTH)
  * @param {boolean} saveToStore - If true, save the Planning item in the Redux store
  * @return Promise
  */
-const loadPlanningById = (ids = [], spikeState = SPIKED_STATE.BOTH, saveToStore = true) => (
-    (dispatch, getState, {api}) => {
-        if (Array.isArray(ids)) {
-            return dispatch(self.loadPlanning({
-                ids,
-                spikeState,
-            }));
-        } else {
-            return api('planning').getById(ids)
-                .then((item) => {
-                    planningUtils.convertCoveragesGenreToObject(item);
-                    if (saveToStore) {
-                        dispatch(self.receivePlannings([item]));
-                    }
+const loadPlanningById = (id, spikeState = SPIKED_STATE.BOTH, saveToStore = true) => (
+    (dispatch, getState, {api}) => api('planning').getById(id)
+        .then((item) => {
+            planningUtils.convertCoveragesGenreToObject(item);
+            if (saveToStore) {
+                dispatch(self.receivePlannings([item]));
+            }
 
-                    return Promise.resolve([item]);
-                }, (error) => (Promise.reject(error)));
-        }
-    }
+            return Promise.resolve([item]);
+        }, (error) => (Promise.reject(error)))
 );
 
 /**
  * Action dispatcher to load Planning items by Event ID from the API, and place them
  * in the local store. This does not update the list of visible Planning items
- * @param {string} eventIds - The Event ID used to query the API
+ * @param {Array, string} eventIds - The Event ID used to query the API
  * @param {boolean} loadToStore - If true, save the Planning Items to the Redux Store
  * @return Promise
  */

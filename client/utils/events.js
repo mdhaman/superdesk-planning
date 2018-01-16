@@ -463,6 +463,7 @@ const getEventsByDate = (events) => {
         let eventDate = date || event.dates.start;
 
         let eventDateFormatted = eventDate.format('YYYY-MM-DD');
+
         if (!days[eventDateFormatted]) {
             days[eventDateFormatted] = [];
         }

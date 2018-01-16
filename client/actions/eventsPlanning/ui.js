@@ -42,8 +42,8 @@ const loadMore = () => (
         dispatch(self.requestEventsPlanning(params));
         return dispatch(eventsAndPlanningApi.query(params))
             .then((results) => {
-                dispatch(eventsApi.receiveEvents(results.events));
-                dispatch(planningApi.receivePlannings(results.planning));
+                dispatch(eventsApi.receiveEvents(results.events || []));
+                dispatch(planningApi.receivePlannings(results.planning || []));
                 dispatch(self.addToList(results));
             });
     }
@@ -52,12 +52,15 @@ const loadMore = () => (
 const refetch = () => (
     (dispatch, getState) => dispatch(eventsAndPlanningApi.refetch())
         .then((results) => {
-            dispatch(eventsApi.receiveEvents(results.events));
-            dispatch(planningApi.receivePlannings(results.planning));
+            if (selectors.main.activeFilter(getState()) !== MAIN.FILTERS.COMBINED) {
+                return Promise.resolve({});
+            }
+
+            dispatch(eventsApi.receiveEvents(results.events || []));
+            dispatch(planningApi.receivePlannings(results.planning || []));
             dispatch(self.addToList(results));
         })
 );
-
 
 const setInList = ({events = [], planning = []}) => ({
     type: EVENTS_PLANNING.ACTIONS.SET_EVENTS_PLANNING_LIST,
@@ -81,9 +84,7 @@ const clearList = () => ({
 const showRelatedPlannings = (event) => (
     (dispatch, getState) => dispatch(eventsApi.loadAssociatedPlannings(event))
         .then((plannings) => {
-            if (get(plannings, 'length', 0)) {
-                dispatch(self._showRelatedPlannings(event));
-            }
+            dispatch(self._showRelatedPlannings(event));
             return Promise.resolve(plannings);
         })
 );

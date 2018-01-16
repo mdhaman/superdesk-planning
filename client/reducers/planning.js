@@ -19,7 +19,6 @@ const initialState = {
     selectedItems: [],
     currentPlanningId: undefined,
     editorOpened: false,
-    planningsAreLoading: false,
     readOnly: true,
     planningHistoryItems: [],
 };
@@ -92,7 +91,6 @@ const planningReducer = createReducer(initialState, {
         return {
             ...state,
             plannings: plannings,
-            planningsAreLoading: false,
         };
     },
 
@@ -350,7 +348,7 @@ const planningReducer = createReducer(initialState, {
 
         // If the user is currently not showing spiked Planning items,
         // Then remove this Plan from the list (if it exists in the list)
-        const spikeState = get(state, 'search.currentSearch.spikeState', SPIKED_STATE.NOT_SPIKED);
+        const spikeState = get(payload, 'spikeState', SPIKED_STATE.NOT_SPIKED);
         let planningsInList = state.planningsInList;
 
         if (planningsInList.indexOf(plan._id) > -1 && spikeState === SPIKED_STATE.NOT_SPIKED) {
@@ -384,7 +382,7 @@ const planningReducer = createReducer(initialState, {
 
         // If the user is currently showing spiked only Planning items,
         // Then remove this Plan from the list (if it exists in the list)
-        const spikeState = get(state, 'search.currentSearch.spikeState', SPIKED_STATE.NOT_SPIKED);
+        const spikeState = get(payload, 'spikeState', SPIKED_STATE.NOT_SPIKED);
         let planningsInList = state.planningsInList;
 
         if (planningsInList.indexOf(plan._id) > -1 && spikeState === SPIKED_STATE.SPIKED) {

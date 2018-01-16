@@ -342,6 +342,7 @@ const fetchToList = (params) => (
 const loadMore = () => (
     (dispatch, getState) => {
         const previousParams = selectors.main.lastRequestParams(getState());
+
         const params = {
             ...previousParams,
             page: get(previousParams, 'page', 0) + 1,

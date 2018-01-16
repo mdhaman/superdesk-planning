@@ -1,5 +1,5 @@
 import * as selectors from '../../selectors';
-import {WORKFLOW_STATE, EVENTS, MODALS} from '../../constants';
+import {WORKFLOW_STATE, EVENTS, MODALS, SPIKED_STATE} from '../../constants';
 import {showModal, hideModal} from '../index';
 import eventsApi from './api';
 import eventsUi from './ui';
@@ -109,7 +109,10 @@ const onEventSpiked = (_e, data) => (
 
             dispatch({
                 type: EVENTS.ACTIONS.SPIKE_EVENT,
-                payload: {event: eventInStore},
+                payload: {
+                    event: eventInStore,
+                    spikeState: get(selectors.main.eventsSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED)
+                },
             });
 
             return Promise.resolve(eventInStore);
@@ -140,7 +143,10 @@ const onEventUnspiked = (_e, data) => (
 
             dispatch({
                 type: EVENTS.ACTIONS.UNSPIKE_EVENT,
-                payload: {event: eventInStore},
+                payload: {
+                    event: eventInStore,
+                    spikeState: get(selectors.main.eventsSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED)
+                },
             });
 
             return Promise.resolve(eventInStore);
@@ -234,6 +240,7 @@ const onRecurringEventSpiked = (e, data) => (
                 payload: {
                     events: data.items,
                     recurrence_id: data.recurrence_id,
+                    spikeState: get(selectors.main.eventsSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED)
                 },
             });
 

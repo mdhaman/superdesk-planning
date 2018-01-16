@@ -37,11 +37,6 @@ describe('events', () => {
             expect(initialState).toEqual({
                 events: {},
                 eventsInList: [],
-                lastRequestParams: {page: 1},
-                search: {
-                    currentSearch: undefined,
-                    advancedSearchOpened: false,
-                },
                 show: true,
                 showEventDetails: null,
                 highlightedEvent: null,
@@ -55,18 +50,6 @@ describe('events', () => {
             const result = events(initialState, {type: 'TOGGLE_EVENT_LIST'});
 
             expect(result.show).toBe(false);
-        });
-
-        it('REQUEST_EVENTS', () => {
-            const result = events(initialState, {
-                type: 'REQUEST_EVENTS',
-                payload: {},
-            });
-
-            expect(result.search).toEqual({
-                currentSearch: {},
-                advancedSearchOpened: false,
-            });
         });
 
         it('ADD_EVENTS', () => {
@@ -107,24 +90,6 @@ describe('events', () => {
             });
 
             expect(result.eventsInList).toEqual(['e1', 'e3', 'e2']);
-        });
-
-        it('OPEN_ADVANCED_SEARCH', () => {
-            const result = events(initialState, {type: 'EVENT_OPEN_ADVANCED_SEARCH'});
-
-            expect(result.search).toEqual({
-                currentSearch: undefined,
-                advancedSearchOpened: true,
-            });
-        });
-
-        it('CLOSE_ADVANCED_SEARCH', () => {
-            const result = events(initialState, {type: 'EVENT_CLOSE_ADVANCED_SEARCH'});
-
-            expect(result.search).toEqual({
-                currentSearch: undefined,
-                advancedSearchOpened: false,
-            });
         });
 
         it('OPEN_EVENT_DETAILS', () => {

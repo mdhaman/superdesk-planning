@@ -116,14 +116,7 @@ export const getTestActionStore = () => {
                 plannings: {},
                 currentPlanningId: undefined,
                 editorOpened: false,
-                planningsAreLoading: false,
                 onlyActive: false,
-                lastRequestParams: {
-                    agendas: ['a1'],
-                    noAgendaAssigned: false,
-                    page: 1,
-                },
-                search: {currentSearch: undefined},
             },
         },
 

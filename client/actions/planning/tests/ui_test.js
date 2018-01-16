@@ -3,8 +3,7 @@ import planningApi from '../api';
 import assignmentApi from '../../assignments/api';
 import main from '../../main';
 import sinon from 'sinon';
-import {PRIVILEGES, ASSIGNMENTS} from '../../../constants';
-import * as actions from '../../../actions/agenda';
+import {PRIVILEGES, ASSIGNMENTS, MAIN} from '../../../constants';
 import {getTestActionStore, restoreSinonStub, expectAccessDenied} from '../../../utils/testUtils';
 import moment from 'moment';
 
@@ -82,6 +81,7 @@ describe('actions.planning.ui', () => {
         restoreSinonStub(planningUi.saveFromAuthoring);
         restoreSinonStub(planningUi.saveFromPlanning);
         restoreSinonStub(main.closePreview);
+        restoreSinonStub(planningUi.loadMore);
     });
 
     describe('spike', () => {
@@ -208,28 +208,6 @@ describe('actions.planning.ui', () => {
                         errorMessage: 'Unauthorised to unspike a planning item!',
                         args: [data.plannings[1]],
                     });
-                    done();
-                });
-        });
-    });
-
-    describe('planning filters', () => {
-        beforeEach(() => {
-            sinon.stub(actions, 'fetchSelectedAgendaPlannings').callsFake(() => (Promise.resolve()));
-        });
-
-        afterEach(() => {
-            restoreSinonStub(actions.fetchSelectedAgendaPlannings);
-        });
-
-        it('toggle future only', (done) => {
-            store.test(done, planningUi.toggleOnlyFutureFilter())
-                .then(() => {
-                    expect(store.dispatch.args[0][0]).toEqual({
-                        type: 'SET_ONLY_FUTURE',
-                        payload: false,
-                    });
-                    expect(actions.fetchSelectedAgendaPlannings.callCount).toBe(1);
                     done();
                 });
         });
@@ -502,6 +480,13 @@ describe('actions.planning.ui', () => {
     });
 
     it('loadMore', (done) => {
+        store.initialState.main.filter = MAIN.FILTERS.PLANNING;
+        store.initialState.main.search.PLANNING.lastRequestParams = {
+            agendas: ['a1'],
+            noAgendaAssigned: false,
+            page: 1
+        };
+
         restoreSinonStub(planningUi.loadMore);
         restoreSinonStub(planningApi.fetch);
         sinon.stub(planningApi, 'fetch').callsFake(
@@ -511,7 +496,7 @@ describe('actions.planning.ui', () => {
         const expectedParams = {
             agendas: ['a1'],
             noAgendaAssigned: false,
-            page: 2,
+            page: 2
         };
 
         store.test(done, planningUi.loadMore())
@@ -532,8 +517,8 @@ describe('actions.planning.ui', () => {
     it('requestPlannings', () => {
         restoreSinonStub(planningUi.requestPlannings);
         expect(planningUi.requestPlannings({page: 2})).toEqual({
-            type: 'REQUEST_PLANNINGS',
-            payload: {page: 2},
+            type: MAIN.ACTIONS.REQUEST,
+            payload: {[MAIN.FILTERS.PLANNING]: {page: 2}},
         });
     });
 

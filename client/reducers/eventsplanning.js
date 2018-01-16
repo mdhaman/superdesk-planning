@@ -38,12 +38,6 @@ export default function(state = initialState, action) {
             ...state,
             eventsAndPlanningInList: modifyEventsPlanning(state, action)
         };
-    case EVENTS_PLANNING.ACTIONS.REQUEST_EVENTS_PLANNING_LIST:
-        return {
-            ...state,
-            planningsAreLoading: true,
-            lastRequestParams: action.payload,
-        };
     case EVENTS_PLANNING.ACTIONS.CLEAR_EVENTS_PLANNING_LIST:
         return {
             ...state,

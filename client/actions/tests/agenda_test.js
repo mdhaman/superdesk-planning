@@ -334,8 +334,11 @@ describe('agenda', () => {
                             payload: 'a1',
                         }]);
 
-                        expect(services.$location.search.callCount).toBe(1);
-                        expect(services.$location.search.args[0]).toEqual(['agenda', 'a1']);
+                        expect(services.$location.search.callCount).toBe(2);
+                        expect(services.$location.search.args).toEqual([
+                            ['agenda', 'a1'],
+                            ['searchParams', '{}']
+                        ]);
 
                         expect(planningUi.fetchToList.callCount).toBe(1);
                         expect(planningUi.fetchToList.args[0]).toEqual([
@@ -344,8 +347,7 @@ describe('agenda', () => {
                                 agendas: ['a1'],
                                 page: 1,
                                 advancedSearch: {},
-                                spikeState: 'draft',
-                                fulltext: undefined,
+                                spikeState: 'draft'
                             },
                         ]);
 
@@ -497,8 +499,7 @@ describe('agenda', () => {
                             agendas: ['a1'],
                             page: 1,
                             advancedSearch: {},
-                            spikeState: 'draft',
-                            fulltext: undefined,
+                            spikeState: 'draft'
                         }]);
                         done();
                     });
@@ -515,8 +516,7 @@ describe('agenda', () => {
                             agendas: null,
                             page: 1,
                             advancedSearch: {},
-                            spikeState: 'draft',
-                            fulltext: undefined,
+                            spikeState: 'draft'
                         }]);
                         done();
                     });

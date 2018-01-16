@@ -27,37 +27,9 @@ describe('planning', () => {
                 planningsInList: [],
                 currentPlanningId: undefined,
                 editorOpened: false,
-                planningsAreLoading: false,
-                filterPlanningKeyword: null,
                 readOnly: true,
                 planningHistoryItems: [],
-                lastRequestParams: {page: 1},
-                search: {
-                    currentSearch: undefined,
-                    advancedSearchOpened: false,
-                },
                 selectedItems: [],
-            });
-        });
-
-        it('REQUEST_PLANNINGS', () => {
-            const result = planning(
-                initialState,
-                {
-                    type: 'REQUEST_PLANNINGS',
-                    payload: {
-                        agendas: ['a1'],
-                        noAgendaAssigned: false,
-                        page: 2,
-                    },
-                }
-            );
-
-            expect(result.planningsAreLoading).toBe(true);
-            expect(result.lastRequestParams).toEqual({
-                agendas: ['a1'],
-                noAgendaAssigned: false,
-                page: 2,
             });
         });
 
@@ -92,24 +64,6 @@ describe('planning', () => {
             const result = planning(initialState, {type: 'CLEAR_PLANNING_LIST'});
 
             expect(result.planningsInList).toEqual([]);
-        });
-
-        it('OPEN_ADVANCED_SEARCH', () => {
-            const result = planning(initialState, {type: 'PLANNING_OPEN_ADVANCED_SEARCH'});
-
-            expect(result.search).toEqual({
-                currentSearch: undefined,
-                advancedSearchOpened: true,
-            });
-        });
-
-        it('CLOSE_ADVANCED_SEARCH', () => {
-            const result = planning(initialState, {type: 'PLANNING_CLOSE_ADVANCED_SEARCH'});
-
-            expect(result.search).toEqual({
-                currentSearch: undefined,
-                advancedSearchOpened: false,
-            });
         });
 
         describe('RECEIVE_PLANNINGS', () => {

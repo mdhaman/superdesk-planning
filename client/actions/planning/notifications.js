@@ -3,7 +3,7 @@ import planning from './index';
 import {getErrorMessage, getLock} from '../../utils';
 import * as selectors from '../../selectors';
 import {showModal, hideModal, events} from '../index';
-import {PLANNING, WORKFLOW_STATE, MODALS} from '../../constants';
+import {PLANNING, WORKFLOW_STATE, MODALS, SPIKED_STATE} from '../../constants';
 import eventsPlanning from '../eventsPlanning';
 
 /**
@@ -178,7 +178,10 @@ const onPlanningSpiked = (_e, data) => (
 
             dispatch({
                 type: PLANNING.ACTIONS.SPIKE_PLANNING,
-                payload: {plan: planningItem},
+                payload: {
+                    plan: planningItem,
+                    spikeState: get(selectors.main.planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED)
+                },
             });
 
             return Promise.resolve(planningItem);
@@ -209,7 +212,10 @@ const onPlanningUnspiked = (_e, data) => (
 
             dispatch({
                 type: PLANNING.ACTIONS.UNSPIKE_PLANNING,
-                payload: {plan: planningItem},
+                payload: {
+                    plan: planningItem,
+                    spikeState: get(selectors.main.planningSearch, 'spikeState', SPIKED_STATE.NOT_SPIKED)
+                },
             });
 
             return Promise.resolve(planningItem);

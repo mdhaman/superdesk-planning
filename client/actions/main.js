@@ -169,6 +169,7 @@ const filter = (ftype = null) => (
 
         // Update the url (deep linking)
         $timeout(() => $location.search('filter', filterType));
+
         if (filterType === MAIN.FILTERS.EVENTS) {
             dispatch(eventsPlanningUi.clearList());
             dispatch(planningUi.clearList());
@@ -217,9 +218,8 @@ const loadMore = (filterType) => (
 );
 
 const search = (searchText) => (
-    (dispatch, getState, {$timeout, $location, notify}) => {
+    (dispatch, getState, {notify}) => {
         let filterType = activeFilter(getState());
-        let promise = Promise.resolve();
 
         if (!filterType) {
             const errMessage = gettext('Cannot search as filter type is not selected.');
@@ -236,14 +236,14 @@ const search = (searchText) => (
         };
 
         if (filterType === MAIN.FILTERS.EVENTS) {
-            promise = dispatch(eventsUi.fetchEvents(params));
+            return dispatch(eventsUi.fetchEvents(params));
         } else if (filterType === MAIN.FILTERS.PLANNING) {
-            promise = dispatch(fetchSelectedAgendaPlannings(params));
+            return dispatch(fetchSelectedAgendaPlannings(params));
         } else if (filterType === MAIN.FILTERS.COMBINED) {
-            promise = dispatch(eventsPlanningUi.fetch(params));
+            return dispatch(eventsPlanningUi.fetch(params));
         }
 
-        return promise;
+        return Promise.resolve();
     }
 );
 

@@ -91,13 +91,13 @@ const getCriteria = (
         fulltext,
         recurrenceId,
         spikeState = SPIKED_STATE.NOT_SPIKED,
-        onlyFuture = true
+        onlyFuture = true,
+        must = []
     }
 ) => {
     let query = {};
     const filter = {};
     let mustNot = [];
-    let must = [];
 
     // List of actions to perform if the condition is true
     [
@@ -207,8 +207,8 @@ const getCriteria = (
         }
     });
 
-    // if advanced search dates are specified and onlyfuture events
-    if (!get(advancedSearch, 'dates' && onlyFuture)) {
+    // if advanced search dates are not specified and onlyfuture events
+    if (!get(advancedSearch, 'dates') && onlyFuture) {
         filter.range = {'dates.end': {gte: 'now/d', time_zone: getTimeZoneOffset()}};
     }
 
@@ -289,7 +289,8 @@ const query = (
                 fulltext,
                 recurrenceId,
                 spikeState,
-                onlyFuture
+                onlyFuture,
+                must
             });
 
         // Query the API and sort by date
@@ -323,7 +324,6 @@ const query = (
 const refetchEvents = () => (
     (dispatch, getState) => {
         const prevParams = selectors.main.lastRequestParams(getState());
-
         const promises = [];
 
         for (let i = 1; i <= prevParams.page; i++) {

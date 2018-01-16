@@ -1,5 +1,6 @@
 import planningApi from '../api';
 import planningUi from '../ui';
+import eventsPlanningUi from '../../eventsPlanning/ui';
 import sinon from 'sinon';
 import {registerNotifications} from '../../../utils';
 import planningNotifications from '../notifications';
@@ -150,10 +151,15 @@ describe('actions.planning.notifications', () => {
     });
 
     describe('`planning:created`', () => {
+        beforeEach(() => {
+            sinon.stub(eventsPlanningUi, 'refetch').callsFake(() => (Promise.resolve()));
+        });
+
         afterEach(() => {
             restoreSinonStub(planningApi.refetch);
             restoreSinonStub(planningUi.setInList);
             restoreSinonStub(planningNotifications.canRefetchPlanning);
+            restoreSinonStub(eventsPlanningUi.refetch);
         });
 
         it('calls refetch on create', (done) => {
@@ -165,6 +171,7 @@ describe('actions.planning.notifications', () => {
                 .then(() => {
                     expect(planningApi.refetch.callCount).toBe(1);
                     expect(planningUi.setInList.callCount).toBe(1);
+                    expect(eventsPlanningUi.refetch.callCount).toBe(1);
                     done();
                 });
         });
@@ -189,12 +196,17 @@ describe('actions.planning.notifications', () => {
     });
 
     describe('onPlanningUpdated', () => {
+        beforeEach(() => {
+            sinon.stub(eventsPlanningUi, 'refetch').callsFake(() => (Promise.resolve()));
+        });
+
         afterEach(() => {
             restoreSinonStub(planningApi.loadPlanningById);
             restoreSinonStub(planningApi.refetch);
             restoreSinonStub(planningUi.setInList);
             restoreSinonStub(planningUi.refetch);
             restoreSinonStub(planningNotifications.canRefetchPlanning);
+            restoreSinonStub(eventsPlanningUi.refetch);
         });
 
         it('calls loadPlanningById on update', (done) => {
@@ -250,6 +262,7 @@ describe('actions.planning.notifications', () => {
                 .then(() => {
                     expect(planningUi.refetch.callCount).toBe(1);
                     expect(planningApi.loadPlanningById.callCount).toBe(0);
+                    expect(eventsPlanningUi.refetch.callCount).toBe(1);
                     done();
                 });
         });
@@ -369,8 +382,13 @@ describe('actions.planning.notifications', () => {
     });
 
     describe('onPlanningPublished', () => {
+        beforeEach(() => {
+            sinon.stub(eventsPlanningUi, 'refetch').callsFake(() => (Promise.resolve()));
+        });
+
         afterEach(() => {
             restoreSinonStub(planningUi.refetch);
+            restoreSinonStub(eventsPlanningUi.refetch);
         });
 
         it('onPlanningPublished calls fetchToList', (done) => {
@@ -380,6 +398,7 @@ describe('actions.planning.notifications', () => {
                 .then(() => {
                 // Reloads selected Agenda Plannings
                     expect(planningUi.refetch.callCount).toBe(1);
+                    expect(eventsPlanningUi.refetch.callCount).toBe(1);
                     done();
                 });
         });
