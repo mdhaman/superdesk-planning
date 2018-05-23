@@ -1,16 +1,24 @@
 
 BACKEND_DIR = server
 VENV = `pwd`/${BACKEND_DIR}/env/bin/activate
-unit: testpy testjs
-run_unit:
+PLANNING_DIR=`pwd`
+run_unit: testpy testjs
+install_unit:
 	npm install --python=python2.7
 	cd server && pip install -r requirements.txt && cd ..
 	gem install coveralls-lcov
-	unit:
-run_e2e:
+install_e2e:
+	ls -la
+	pwd
 	mkdir e2e
 	cd e2e
+	ls -la
+	pwd
 	git clone https://github.com/superdesk/superdesk.git
+	ls -la
+	cd superdesk
+	pwd
+	ls -la
 	git checkout planning-mvp
 	npm install --python=python2.7
 	npm install -g grunt-cli
@@ -25,7 +33,6 @@ run_e2e:
 	&& sudo service elasticsearch restart
 	&& sleep 10
 	&& curl -XPUT 'http://localhost:9200/_snapshot/backups' -d '{"type": "fs", "settings": {"location": "/tmp/es-backups"}}
-	e2e:
 testjs:
 	npm run test
 testpy:
@@ -35,12 +42,12 @@ testpy:
 	cd ${BACKEND_DIR} ; coverage run --source planning --omit "*tests*" -m behave --format progress2 --logging-level=ERROR
 	mv  ${BACKEND_DIR}/.coverage .coverage.behave
 	coverage combine .coverage.behave .coverage.nosetests
-e2e:
-	cd ./e2e/client/dist
+run_e2e:
+	cd ${PLANNING_DIR}/e2e/client/dist
 	nohup python -m http.server 9000 &
-	cd ../../server
+	cd ${PLANNING_DIR}/e2e/server
 	honcho start &
 	sleep 10
-	cd ../../
+	cd ${PLANNING_DIR}
 	./node_modules/protractor/bin/protractor protractor.conf.js --stackTrace --verbose
 
