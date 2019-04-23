@@ -11,7 +11,7 @@ cd $BACKEND_DIR
 flake8
 nosetests -v --with-coverage --cover-package=planning
 mv .coverage ../.coverage.nosetests
-coverage run --source planning --omit "*tests*" -m behave --logging-level=ERROR --tags=wip
+coverage run --source planning --omit "*tests*" -m behave --logging-level=ERROR --tags=wip -k
 mv .coverage ../.coverage.behave
 cd ..
 coverage combine .coverage.behave .coverage.nosetests
