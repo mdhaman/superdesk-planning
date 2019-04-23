@@ -31,7 +31,7 @@ cache:
 
 before_install:
     - sudo apt-get purge elasticsearch
-    - sudo apt-get install -t stable elasticsearch && sudo service elasticsearch restart
+    - sudo apt-get install -y elasticsearch=2.4.6 && sudo service elasticsearch restart
     - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
     - node --version
     - export CHROME_BIN=`which google-chrome` && $CHROME_BIN --version
