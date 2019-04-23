@@ -125,7 +125,7 @@ Feature: Rewrite content
 
     @auth
     @vocabularies
-    @link_updates
+    @link_updates @wip
     Scenario: Updates to a news story linked to an assignment also gets linked
         When we post to "/planning"
         """
@@ -341,7 +341,7 @@ Feature: Rewrite content
 
     @auth
     @vocabularies
-    @link_updates
+    @link_updates @wip
     Scenario: Updates linking can be controlled by no_content_linking flag on coverage
         When we post to "/planning"
         """
@@ -543,7 +543,7 @@ Feature: Rewrite content
 
     @auth
     @vocabularies
-    @link_updates
+    @link_updates @wip
     Scenario: Unlink-as-update will unlink the assignment only to that update
         When we post to "/planning"
         """
@@ -859,7 +859,7 @@ Feature: Rewrite content
 
     @auth
     @vocabularies
-    @link_updates
+    @link_updates @wip
     Scenario: Linking respects no_content_linking assignment in chain.
         When we post to "/planning"
         """
@@ -1510,7 +1510,7 @@ Feature: Rewrite content
 
     @auth
     @vocabularies
-    @link_updates
+    @link_updates @wip
     Scenario: Unlinking as coverage wil unlink the whole chain
         When we post to "/planning"
         """
